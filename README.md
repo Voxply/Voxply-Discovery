@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Voxply-discovery
 
-## Getting Started
+Hub discovery service for the [Voxply](https://github.com/Voxply/Voxply) platform.
+A web app where hub operators register their public hubs and users
+browse or search for communities to join.
 
-First, run the development server:
+Part of the Voxply project — see the
+[docs repo](https://github.com/Voxply/Voxply) for architecture and API spec,
+and the [roadmap](https://github.com/Voxply/Voxply/blob/main/ROADMAP.md) for what's next.
+
+## Technologies
+
+- **Next.js 16** — React framework with App Router
+- **React 19** + **TypeScript** — UI layer
+- **Tailwind CSS 4** — utility-first styling
+- **SQLite** via better-sqlite3 — embedded hub registry
+- **@noble/ed25519** — Ed25519 signature verification for hub profiles
+
+## Quick start
+
+Requires [Node 20+](https://nodejs.org).
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Building
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Type checking
 
-## Learn More
+```bash
+npx tsc --noEmit
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Built with AI assistance
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project was built with substantial help from
+[Claude](https://claude.ai) (Anthropic's AI assistant). The product
+owner directs architecture, features, and tradeoffs; Claude drafts
+most of the code, tests, and documentation, which is then reviewed,
+adjusted, and accepted.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Calling this out for transparency — it's not a fully hand-written
+codebase, and pretending otherwise wouldn't be honest.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[GNU Affero General Public License v3.0](LICENSE).
