@@ -28,10 +28,26 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-neutral-950 text-neutral-100">
-        <header className="border-b border-neutral-800 px-6 py-3 flex items-center gap-4">
-          <a href="/" className="font-semibold text-lg tracking-tight">Voxply Directory</a>
-          <span className="text-neutral-500 text-sm flex-1">Discover communities</span>
-          <a href="/submit" className="text-sm text-indigo-400 hover:text-indigo-300">List your hub →</a>
+        <header className="border-b border-neutral-800 px-6 py-3 flex items-center gap-6">
+          <a href="/" className="flex items-center gap-2 font-bold text-lg">
+            Voxply
+          </a>
+          <nav className="flex items-center gap-4 text-sm text-neutral-400">
+            <a href="/" className="hover:text-neutral-100 transition-colors">Hubs</a>
+            <a href="/bots" className="hover:text-neutral-100 transition-colors">Bots</a>
+            <a href="/clients" className="hover:text-neutral-100 transition-colors">Clients</a>
+          </nav>
+          <div className="ml-auto flex items-center gap-3 text-sm">
+            <a href="/submit" className="text-neutral-400 hover:text-neutral-100 transition-colors">
+              List your hub →
+            </a>
+            <a
+              href="/bots/submit"
+              className="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+            >
+              List your bot →
+            </a>
+          </div>
         </header>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-neutral-800 px-6 py-4 text-xs text-neutral-500 text-center">

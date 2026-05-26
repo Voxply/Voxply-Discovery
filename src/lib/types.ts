@@ -34,3 +34,23 @@ export interface SubmitPayload {
   hub_pubkey: string;
   signature: string;
 }
+
+export interface BotCommand {
+  name: string;
+  description: string;
+}
+
+export interface BotListing {
+  pubkey: string;
+  name: string;
+  description: string;
+  homepage_url: string;
+  webhook_url: string;
+  capabilities: string[];
+  commands: BotCommand[];
+  tags: string[];
+  listed_at: number;
+  updated_at: number;
+}
+
+export type BotListingInput = Omit<BotListing, "listed_at" | "updated_at">;
