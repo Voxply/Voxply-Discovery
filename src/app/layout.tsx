@@ -36,7 +36,9 @@ export default function RootLayout({
             <a href="/" className="hover:text-neutral-100 transition-colors">Hubs</a>
             <a href="/bots" className="hover:text-neutral-100 transition-colors">Bots</a>
             <a href="/templates" className="hover:text-neutral-100 transition-colors">Templates</a>
+            <a href="/farms" className="hover:text-neutral-100 transition-colors">Farms</a>
             <a href="/clients" className="hover:text-neutral-100 transition-colors">Clients</a>
+            <a href="/analytics" className="hover:text-neutral-100 transition-colors">Analytics</a>
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">
             <a href="/submit" className="text-neutral-400 hover:text-neutral-100 transition-colors">

@@ -134,6 +134,29 @@ function migrate(db: Database.Database) {
     );
     CREATE INDEX IF NOT EXISTS idx_templates_author ON templates(author_pubkey);
   `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS analytics_cache (
+      key         TEXT PRIMARY KEY,
+      value       TEXT NOT NULL,
+      computed_at TEXT NOT NULL
+    );
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS farms (
+      farm_pubkey          TEXT PRIMARY KEY,
+      farm_url             TEXT NOT NULL UNIQUE,
+      name                 TEXT NOT NULL,
+      description          TEXT NOT NULL DEFAULT '',
+      icon                 TEXT,
+      pricing_tiers        TEXT NOT NULL DEFAULT '[]',
+      capacity_available   INTEGER NOT NULL DEFAULT 0,
+      listed_at            TEXT NOT NULL,
+      last_verified_at     TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_farms_listed_at ON farms(listed_at);
+  `);
 }
 
 interface HubRow {
