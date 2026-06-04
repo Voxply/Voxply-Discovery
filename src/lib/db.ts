@@ -157,6 +157,16 @@ function migrate(db: Database.Database) {
     );
     CREATE INDEX IF NOT EXISTS idx_farms_listed_at ON farms(listed_at);
   `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS bootstrap_tokens (
+      token       TEXT PRIMARY KEY,
+      config      TEXT NOT NULL,
+      created_at  TEXT NOT NULL,
+      expires_at  TEXT NOT NULL,
+      used        INTEGER NOT NULL DEFAULT 0
+    );
+  `);
 }
 
 interface HubRow {

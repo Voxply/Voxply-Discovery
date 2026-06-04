@@ -46,9 +46,15 @@ export default function RootLayout({
             </a>
             <a
               href="/bots/submit"
-              className="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+              className="text-neutral-400 hover:text-neutral-100 transition-colors"
             >
               List your bot →
+            </a>
+            <a
+              href="/new"
+              className="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+            >
+              Create hub →
             </a>
           </div>
         </header>
