@@ -108,6 +108,32 @@ function migrate(db: Database.Database) {
       PRIMARY KEY (user_pubkey, window_start)
     );
   `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS hub_pings (
+      hub_pubkey TEXT NOT NULL REFERENCES hubs(hub_pubkey) ON DELETE CASCADE,
+      checked_at TEXT NOT NULL,
+      success INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_pings_hub ON hub_pings(hub_pubkey);
+    CREATE INDEX IF NOT EXISTS idx_pings_checked ON hub_pings(checked_at);
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS templates (
+      template_id   TEXT PRIMARY KEY,
+      name          TEXT NOT NULL,
+      description   TEXT NOT NULL DEFAULT '',
+      author_pubkey TEXT NOT NULL,
+      version       TEXT NOT NULL DEFAULT '1.0.0',
+      payload       TEXT NOT NULL,
+      signature     TEXT NOT NULL,
+      tags          TEXT NOT NULL DEFAULT '[]',
+      listed_at     TEXT NOT NULL,
+      last_verified_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_templates_author ON templates(author_pubkey);
+  `);
 }
 
 interface HubRow {

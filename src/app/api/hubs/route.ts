@@ -3,6 +3,7 @@ import { listHubs, upsertHub } from "@/lib/db";
 import { verifySignature } from "@/lib/verify";
 import { fetchHubInfo } from "@/lib/scrape";
 import { buildCanonicalPayload, currentNonce } from "@/lib/canonical";
+import { getUptime7d } from "@/lib/uptime";
 import type { SubmitPayload } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
@@ -13,7 +14,11 @@ export async function GET(req: NextRequest) {
     language: searchParams.get("language") ?? undefined,
     page: Number(searchParams.get("page") ?? 1),
   });
-  return NextResponse.json(result);
+  const hubs = result.hubs.map((hub) => ({
+    ...hub,
+    uptime_7d: getUptime7d(hub.hub_pubkey),
+  }));
+  return NextResponse.json({ ...result, hubs });
 }
 
 export async function POST(req: NextRequest) {

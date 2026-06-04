@@ -35,6 +35,7 @@ export default function RootLayout({
           <nav className="flex items-center gap-4 text-sm text-neutral-400">
             <a href="/" className="hover:text-neutral-100 transition-colors">Hubs</a>
             <a href="/bots" className="hover:text-neutral-100 transition-colors">Bots</a>
+            <a href="/templates" className="hover:text-neutral-100 transition-colors">Templates</a>
             <a href="/clients" className="hover:text-neutral-100 transition-colors">Clients</a>
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">

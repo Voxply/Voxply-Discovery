@@ -1,6 +1,7 @@
 import { listHubs } from "@/lib/db";
 import { HubCard } from "@/components/HubCard";
 import { SearchBar } from "@/components/SearchBar";
+import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 
 interface PageProps {
   searchParams: Promise<{ q?: string; tag?: string; language?: string; page?: string }>;
@@ -23,6 +24,10 @@ export default async function HomePage({ searchParams }: PageProps) {
           Browse Voxply hubs listed by their operators. Click any hub to preview
           it, then open it directly in the Voxply app.
         </p>
+      </div>
+
+      <div className="mb-4">
+        <GlobalSearchBar />
       </div>
 
       <SearchBar defaultQ={sp.q} defaultLanguage={sp.language} defaultTag={sp.tag} />
