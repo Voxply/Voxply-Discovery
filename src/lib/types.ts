@@ -54,3 +54,24 @@ export interface BotListing {
 }
 
 export type BotListingInput = Omit<BotListing, "listed_at" | "updated_at">;
+
+export interface SkinListItem {
+  id: string;
+  author_pubkey: string;
+  name: string;
+  base: string;
+  swatch_bg: string;
+  swatch_surface: string;
+  swatch_accent: string;
+  featured: number;
+  listed_at: number;
+}
+
+export interface SkinItem extends SkinListItem {
+  payload: string;
+}
+
+export interface RegisterSkinPayload {
+  payload: string; // full .voxplyskin JSON
+  sig: string;     // base64url Ed25519 sig over payload bytes
+}

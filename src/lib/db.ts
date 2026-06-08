@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
-import type { HubListing, BotListing, BotListingInput, BotCommand } from "./types";
+import type { HubListing, BotListing, BotListingInput, BotCommand, SkinListItem, SkinItem } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "discovery.db");
@@ -166,6 +166,24 @@ function migrate(db: Database.Database) {
       expires_at  TEXT NOT NULL,
       used        INTEGER NOT NULL DEFAULT 0
     );
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS skins (
+      id             TEXT PRIMARY KEY,
+      author_pubkey  TEXT NOT NULL,
+      name           TEXT NOT NULL,
+      base           TEXT NOT NULL,
+      swatch_bg      TEXT NOT NULL,
+      swatch_surface TEXT NOT NULL,
+      swatch_accent  TEXT NOT NULL,
+      payload        TEXT NOT NULL,
+      featured       INTEGER NOT NULL DEFAULT 0,
+      listed_at      INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_skins_author ON skins(author_pubkey);
+    CREATE INDEX IF NOT EXISTS idx_skins_listed_at ON skins(listed_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_skins_base ON skins(base);
   `);
 }
 
@@ -374,4 +392,95 @@ export function upsertBot(data: BotListingInput): void {
 export function deleteBot(pubkey: string): void {
   const db = getDb();
   db.prepare("DELETE FROM bots WHERE pubkey = ?").run(pubkey);
+}
+
+// ---- Skins ----
+
+export interface SkinRow {
+  id: string;
+  author_pubkey: string;
+  name: string;
+  base: string;
+  swatch_bg: string;
+  swatch_surface: string;
+  swatch_accent: string;
+  payload: string;
+  featured: number;
+  listed_at: number;
+}
+
+function skinRowToItem(row: SkinRow): SkinItem {
+  return { ...row };
+}
+
+function skinRowToListItem(row: SkinRow): SkinListItem {
+  const { payload: _payload, ...rest } = row;
+  void _payload;
+  return rest;
+}
+
+export function registerSkin(row: SkinRow): void {
+  const db = getDb();
+  db.prepare(`
+    INSERT OR REPLACE INTO skins
+      (id, author_pubkey, name, base, swatch_bg, swatch_surface, swatch_accent, payload, featured, listed_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    row.id,
+    row.author_pubkey,
+    row.name,
+    row.base,
+    row.swatch_bg,
+    row.swatch_surface,
+    row.swatch_accent,
+    row.payload,
+    row.featured,
+    row.listed_at,
+  );
+}
+
+export function getSkin(id: string): SkinItem | null {
+  const db = getDb();
+  const row = db.prepare("SELECT * FROM skins WHERE id = ?").get(id) as SkinRow | undefined;
+  return row ? skinRowToItem(row) : null;
+}
+
+export function deleteSkin(id: string): boolean {
+  const db = getDb();
+  const result = db.prepare("DELETE FROM skins WHERE id = ?").run(id);
+  return result.changes > 0;
+}
+
+export interface ListSkinsOptions {
+  q?: string;
+  base?: string;
+  page?: number;
+}
+
+export function listSkins(opts: ListSkinsOptions = {}): { skins: SkinListItem[]; total: number } {
+  const db = getDb();
+  const page = Math.max(1, opts.page ?? 1);
+  const limit = 20;
+  const offset = (page - 1) * limit;
+
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (opts.q) {
+    conditions.push("name LIKE ?");
+    params.push(`%${opts.q}%`);
+  }
+  if (opts.base) {
+    conditions.push("base = ?");
+    params.push(opts.base);
+  }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const rows = db.prepare(
+    `SELECT * FROM skins ${where} ORDER BY featured DESC, listed_at DESC LIMIT ? OFFSET ?`
+  ).all([...params, limit, offset]) as SkinRow[];
+  const { count } = db.prepare(`SELECT COUNT(*) as count FROM skins ${where}`)
+    .get(params) as { count: number };
+
+  return { skins: rows.map(skinRowToListItem), total: count };
 }
