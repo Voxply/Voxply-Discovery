@@ -8,11 +8,15 @@ import type { SubmitPayload } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
+  const rawPage = Number(searchParams.get("page") ?? 1);
+  const page = Number.isFinite(rawPage) ? Math.min(Math.max(1, rawPage), 1000) : 1;
+  const q = searchParams.get("q")?.slice(0, 100) ?? undefined;
+  const language = searchParams.get("language")?.slice(0, 10) ?? undefined;
   const result = listHubs({
-    q: searchParams.get("q") ?? undefined,
-    tag: searchParams.getAll("tag"),
-    language: searchParams.get("language") ?? undefined,
-    page: Number(searchParams.get("page") ?? 1),
+    q,
+    tag: searchParams.getAll("tag").map((t) => t.slice(0, 50)),
+    language,
+    page,
   });
   const hubs = result.hubs.map((hub) => ({
     ...hub,

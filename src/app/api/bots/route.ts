@@ -5,10 +5,10 @@ import type { BotListingInput } from "@/lib/types";
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const bots = listBots({
-    search: searchParams.get("search") ?? undefined,
-    tag: searchParams.get("tag") ?? undefined,
+    search: searchParams.get("search")?.slice(0, 100) ?? undefined,
+    tag: searchParams.get("tag")?.slice(0, 50) ?? undefined,
   });
-  return NextResponse.json(bots);
+  return NextResponse.json({ bots });
 }
 
 export async function POST(req: NextRequest) {

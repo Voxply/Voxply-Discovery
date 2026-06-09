@@ -12,10 +12,12 @@ interface SearchResult {
 }
 
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.trim();
+  const q = req.nextUrl.searchParams.get("q")?.trim().slice(0, 100);
   if (!q || q.length < 2) return NextResponse.json({ results: [] });
 
-  const types = req.nextUrl.searchParams.get("types")?.split(",") ?? ["hubs", "bots"];
+  const VALID_TYPES = new Set(["hubs", "bots", "templates"]);
+  const rawTypes = req.nextUrl.searchParams.get("types")?.split(",") ?? ["hubs", "bots"];
+  const types = rawTypes.filter((t) => VALID_TYPES.has(t));
   const db = getDb();
   const pattern = `%${q}%`;
   const results: SearchResult[] = [];
