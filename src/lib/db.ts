@@ -52,61 +52,6 @@ function migrate(db: Database.Database) {
     );
     CREATE INDEX IF NOT EXISTS idx_bots_listed_at ON bots(listed_at);
 
-    CREATE TABLE IF NOT EXISTS missions (
-      id TEXT PRIMARY KEY,
-      sponsor_id TEXT NOT NULL,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      reward_sparks INTEGER NOT NULL,
-      attestation_url TEXT NOT NULL,
-      verify_callback_url TEXT,
-      expires_at INTEGER,
-      active INTEGER NOT NULL DEFAULT 1,
-      max_completions_per_user INTEGER NOT NULL DEFAULT 1
-    );
-    CREATE TABLE IF NOT EXISTS sponsors (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      balance_credits INTEGER NOT NULL DEFAULT 0,
-      api_key_hash TEXT NOT NULL,
-      signing_pubkey TEXT NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS completions (
-      mission_id TEXT NOT NULL,
-      user_pubkey TEXT NOT NULL,
-      completed_at INTEGER NOT NULL,
-      ip_hash TEXT NOT NULL,
-      pow_level INTEGER NOT NULL,
-      PRIMARY KEY (mission_id, user_pubkey)
-    );
-    CREATE TABLE IF NOT EXISTS spark_balances (
-      user_pubkey TEXT PRIMARY KEY,
-      balance INTEGER NOT NULL DEFAULT 0,
-      updated_at INTEGER NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS cosmetic_catalog (
-      item_id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      type TEXT NOT NULL,
-      description TEXT NOT NULL,
-      cost_sparks INTEGER NOT NULL,
-      asset_url TEXT NOT NULL,
-      expires_at INTEGER
-    );
-    CREATE TABLE IF NOT EXISTS entitlements (
-      user_pubkey TEXT NOT NULL,
-      item_id TEXT NOT NULL,
-      granted_at INTEGER NOT NULL,
-      expires_at INTEGER,
-      signature TEXT NOT NULL,
-      PRIMARY KEY (user_pubkey, item_id)
-    );
-    CREATE TABLE IF NOT EXISTS claim_rate_limits (
-      user_pubkey TEXT NOT NULL,
-      window_start INTEGER NOT NULL,
-      claim_count INTEGER NOT NULL DEFAULT 0,
-      PRIMARY KEY (user_pubkey, window_start)
-    );
   `);
 
   db.exec(`
