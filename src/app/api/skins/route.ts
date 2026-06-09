@@ -25,10 +25,12 @@ function bytesToHex(b: Uint8Array): string {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
+  const rawPage = Number(searchParams.get("page") ?? 1);
+  const page = Number.isFinite(rawPage) ? Math.min(Math.max(1, rawPage), 1000) : 1;
   const result = listSkins({
-    q: searchParams.get("q") ?? undefined,
+    q: searchParams.get("q")?.slice(0, 100) ?? undefined,
     base: searchParams.get("base") ?? undefined,
-    page: Number(searchParams.get("page") ?? 1),
+    page,
   });
   return NextResponse.json(result);
 }
@@ -70,8 +72,14 @@ export async function POST(req: NextRequest) {
   if (typeof parsed.author_pubkey !== "string" || parsed.author_pubkey.trim() === "") {
     return NextResponse.json({ error: "Missing author_pubkey" }, { status: 400 });
   }
+  if (payload.length > 16384) {
+    return NextResponse.json({ error: "payload must be 16 KB or smaller" }, { status: 400 });
+  }
   if (typeof parsed.tokens !== "object" || parsed.tokens === null) {
     return NextResponse.json({ error: "Invalid tokens field" }, { status: 400 });
+  }
+  if (Object.keys(parsed.tokens as object).length > 50) {
+    return NextResponse.json({ error: "tokens must have at most 50 keys" }, { status: 400 });
   }
 
   const authorPubkey = (parsed.author_pubkey as string).trim();
