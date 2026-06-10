@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { InfoResponse } from "@/lib/types";
 
 export default function SubmitPage() {
@@ -62,9 +63,9 @@ export default function SubmitPage() {
 
   return (
     <div className="max-w-xl mx-auto px-6 py-10">
-      <a href="/" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
+      <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
         ← Back to directory
-      </a>
+      </Link>
       <h1 className="text-2xl font-bold mb-2">List your hub</h1>
       <p className="text-neutral-400 mb-8 text-sm">
         The easiest way is via the Voxply app: open hub settings → Overview →

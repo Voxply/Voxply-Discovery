@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -18,30 +18,36 @@ interface Farm {
   farm_url: string;
 }
 
+function readQueryParams(): { templateId: string | null; deployPath: "farm" | "docker" | "binary" } {
+  if (typeof window === "undefined") return { templateId: null, deployPath: "docker" };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    templateId: params.get("template_id"),
+    deployPath: params.get("farm") ? "farm" : "docker",
+  };
+}
+
 export default function NewHubPage() {
+  const initRef = useRef(false);
   const [step, setStep] = useState<Step>(1);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(() => readQueryParams().templateId);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [hubName, setHubName] = useState("");
   const [hubDesc, setHubDesc] = useState("");
   const [bootstrapToken, setBootstrapToken] = useState<string | null>(null);
-  const [deployPath, setDeployPath] = useState<"farm" | "docker" | "binary">("docker");
+  const [deployPath, setDeployPath] = useState<"farm" | "docker" | "binary">(() => readQueryParams().deployPath);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
   useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
     fetch("/api/templates")
       .then((r) => r.json())
       .then((d: { templates?: Template[] }) => setTemplates(d.templates ?? []));
     fetch("/api/farms")
       .then((r) => r.json())
       .then((d: { farms?: Farm[] }) => setFarms(d.farms ?? []));
-    // Pre-fill from query params if coming from template/farm catalog
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("template_id");
-    if (tid) setSelectedTemplate(tid);
-    const furl = params.get("farm");
-    if (furl) setDeployPath("farm");
   }, []);
 
   async function generateToken() {

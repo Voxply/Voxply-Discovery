@@ -37,13 +37,13 @@ export function GlobalSearchBar() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (q.length < 2) {
-      setResults([]);
-      setOpen(false);
-      return;
-    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
+      if (q.length < 2) {
+        setResults([]);
+        setOpen(false);
+        return;
+      }
       setLoading(true);
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&types=hubs,bots,templates`);
