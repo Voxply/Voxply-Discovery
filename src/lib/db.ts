@@ -18,6 +18,11 @@ export function getDb(): Database.Database {
   return _db;
 }
 
+export function initDb(db: Database.Database): void {
+  migrate(db);
+  _db = db;
+}
+
 function migrate(db: Database.Database) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS hubs (

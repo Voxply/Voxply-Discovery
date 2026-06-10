@@ -12,7 +12,7 @@ export async function verifySignature(
     const pubkey = hexToBytes(pubkeyHex);
     const sig = hexToBytes(signatureHex);
     const msg = new TextEncoder().encode(message);
-    return await ed.verify(sig, msg, pubkey);
+    return await ed.verifyAsync(sig, msg, pubkey);
   } catch {
     return false;
   }
