@@ -18,6 +18,8 @@ export async function verifySignature(
   }
 }
 
+// Duplicates hexToBytes from @voxply/utils (web/utils); kept local so this
+// Next.js app doesn't need to transpile the React-coupled shared package.
 function hexToBytes(hex: string): Uint8Array {
   if (hex.length % 2 !== 0) throw new Error("Invalid hex");
   const out = new Uint8Array(hex.length / 2);
