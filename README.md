@@ -54,6 +54,10 @@ environment variable to guard it.
 Hubs choose which directory they announce to via the `discovery_url`
 setting in [Voxply-server](https://github.com/Voxply/Voxply-server).
 
+> Note for contributors: this repo pins a Next.js version with breaking
+> changes from older releases. Read the bundled guide under
+> `node_modules/next/dist/docs/` before touching the App Router code.
+
 ## Tech
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS · SQLite via
@@ -69,9 +73,7 @@ npm run lint       # eslint
 | Repo | What it is |
 |---|---|
 | [Voxply-server](https://github.com/Voxply/Voxply-server) | Hub server, farm tooling, identity crate (Rust) |
-| [Voxply-desktop](https://github.com/Voxply/Voxply-desktop) | Desktop client — Windows / macOS / Linux (Tauri 2 + React) |
-| [Voxply-web](https://github.com/Voxply/Voxply-web) | Browser client (text + DMs) |
-| [Voxply-android](https://github.com/Voxply/Voxply-android) | Android client (Tauri 2) |
+| [Voxply-client](https://github.com/Voxply/Voxply-client) | All clients (desktop / web / Android) + shared packages |
 | **Voxply-discovery** *(this repo)* | Optional public hub directory |
 | [Voxply](https://github.com/Voxply/Voxply) | Architecture wiki, roadmap, API spec |
 
