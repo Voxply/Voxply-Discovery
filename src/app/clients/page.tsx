@@ -1,10 +1,10 @@
-export default function ClientsPage() {
+﻿export default function ClientsPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <div className="mb-10">
         <h1 className="text-3xl font-bold mb-2">Clients</h1>
         <p className="text-neutral-400">
-          Official Voxply clients. All clients connect directly to hubs — no intermediary servers.
+          Official Wavvon clients. All clients connect directly to hubs — no intermediary servers.
         </p>
       </div>
 
@@ -18,7 +18,7 @@ export default function ClientsPage() {
           <div className="flex flex-col gap-2">
             <span className="text-xs text-neutral-500 uppercase tracking-wide">Built with Tauri</span>
             <a
-              href="https://github.com/Voxply/Voxply-desktop/releases"
+              href="https://github.com/Wavvon/Wavvon-desktop/releases"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm text-center transition-colors"
@@ -37,7 +37,7 @@ export default function ClientsPage() {
           <div className="flex flex-col gap-2">
             <span className="text-xs text-neutral-500 uppercase tracking-wide">React + WebRTC</span>
             <a
-              href="https://github.com/Voxply/Voxply-web"
+              href="https://github.com/Wavvon/Wavvon-web"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg border border-neutral-700 hover:border-indigo-500 text-neutral-300 text-sm text-center transition-colors"
@@ -56,7 +56,7 @@ export default function ClientsPage() {
           <div className="flex flex-col gap-2">
             <span className="text-xs text-neutral-500 uppercase tracking-wide">Tauri for Android</span>
             <a
-              href="https://github.com/Voxply/Voxply-android"
+              href="https://github.com/Wavvon/Wavvon-android"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg border border-neutral-700 hover:border-indigo-500 text-neutral-300 text-sm text-center transition-colors"

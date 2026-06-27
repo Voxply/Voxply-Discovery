@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Voxply Hub Directory",
-  description: "Discover and share Voxply communities",
+  title: "Wavvon Hub Directory",
+  description: "Discover and share Wavvon communities",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-neutral-950 text-neutral-100">
         <header className="border-b border-neutral-800 px-6 py-3 flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            Voxply
+            Wavvon
           </Link>
           <nav className="flex items-center gap-4 text-sm text-neutral-400">
             <Link href="/" className="hover:text-neutral-100 transition-colors">Hubs</Link>
@@ -61,7 +61,7 @@ export default function RootLayout({
         </header>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-neutral-800 px-6 py-4 text-xs text-neutral-500 text-center">
-          Voxply — decentralized voice &amp; community
+          Wavvon — decentralized voice &amp; community
         </footer>
       </body>
     </html>

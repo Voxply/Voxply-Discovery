@@ -1,12 +1,12 @@
-# Voxply Discovery
+﻿# Wavvon Discovery
 
-[![Build check](https://github.com/Voxply/Voxply-discovery/actions/workflows/build.yml/badge.svg)](https://github.com/Voxply/Voxply-discovery/actions/workflows/build.yml)
+[![Build check](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml/badge.svg)](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml)
 
 The **optional public hub directory** for
-[Voxply](https://github.com/Voxply/Voxply) — an open-source, federated
+[Wavvon](https://github.com/Wavvon/Wavvon) — an open-source, federated
 voice + text platform where communities run their own servers.
 
-Voxply has no central server, so there is nothing you *must* register
+Wavvon has no central server, so there is nothing you *must* register
 with — hubs are joined by URL. Discovery exists purely as a
 convenience: hub operators can list their public hubs here, and users
 can browse and search for communities to join. Hubs work exactly the
@@ -22,7 +22,7 @@ your own directory for your own network.
   ready-to-boot hub bootstrap.
 - **Farm catalog** — browse public farms (multi-hub deployments).
 - **Bot directory** — published bots, invitable by public key.
-- **Skins gallery** — community `.voxplyskin` themes, signed by their
+- **Skins gallery** — community `.wavvonskin` themes, signed by their
   authors, shown in the Appearance tab of every client.
 - **Config template catalog** — signed channel/role templates for new
   hubs.
@@ -32,8 +32,8 @@ your own directory for your own network.
 Requires [Node 20+](https://nodejs.org).
 
 ```bash
-git clone https://github.com/Voxply/Voxply-discovery
-cd Voxply-discovery
+git clone https://github.com/Wavvon/Wavvon-discovery
+cd Wavvon-discovery
 npm install
 npm run dev
 # Open http://localhost:3000
@@ -52,7 +52,7 @@ job at `POST /api/internal/ping-hubs` and set the `CRON_SECRET`
 environment variable to guard it.
 
 Hubs choose which directory they announce to via the `discovery_url`
-setting in [Voxply-server](https://github.com/Voxply/Voxply-server).
+setting in [Wavvon-server](https://github.com/Wavvon/Wavvon-server).
 
 > Note for contributors: this repo pins a Next.js version with breaking
 > changes from older releases. Read the bundled guide under
@@ -68,19 +68,19 @@ npx tsc --noEmit   # type check
 npm run lint       # eslint
 ```
 
-## The Voxply project
+## The Wavvon project
 
 | Repo | What it is |
 |---|---|
-| [Voxply-server](https://github.com/Voxply/Voxply-server) | Hub server, farm tooling, identity crate (Rust) |
-| [Voxply-client](https://github.com/Voxply/Voxply-client) | All clients (desktop / web / Android) + shared packages |
-| **Voxply-discovery** *(this repo)* | Optional public hub directory |
-| [Voxply](https://github.com/Voxply/Voxply) | Architecture wiki, roadmap, API spec |
+| [Wavvon-server](https://github.com/Wavvon/Wavvon-server) | Hub server, farm tooling, identity crate (Rust) |
+| [Wavvon-client](https://github.com/Wavvon/Wavvon-client) | All clients (desktop / web / Android) + shared packages |
+| **Wavvon-discovery** *(this repo)* | Optional public hub directory |
+| [Wavvon](https://github.com/Wavvon/Wavvon) | Architecture wiki, roadmap, API spec |
 
 Design docs:
-[hub-discovery.md](https://github.com/Voxply/Voxply/blob/main/docs/hub-discovery.md)
+[hub-discovery.md](https://github.com/Wavvon/Wavvon/blob/main/docs/hub-discovery.md)
 and
-[discovery-v2.md](https://github.com/Voxply/Voxply/blob/main/docs/discovery-v2.md).
+[discovery-v2.md](https://github.com/Wavvon/Wavvon/blob/main/docs/discovery-v2.md).
 
 ## Contributing
 

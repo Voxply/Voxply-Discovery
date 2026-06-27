@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -51,7 +51,7 @@ export default function SubmitPage() {
       "To submit this listing, your hub needs to sign the payload below with its",
       "Ed25519 private key (hub_identity.json).",
       "",
-      "In your Voxply hub admin → Overview → Submit to Directory, paste:",
+      "In your Wavvon hub admin → Overview → Submit to Directory, paste:",
       canonical,
       "",
       "Then paste the returned signature here.",
@@ -68,7 +68,7 @@ export default function SubmitPage() {
       </Link>
       <h1 className="text-2xl font-bold mb-2">List your hub</h1>
       <p className="text-neutral-400 mb-8 text-sm">
-        The easiest way is via the Voxply app: open hub settings → Overview →
+        The easiest way is via the Wavvon app: open hub settings → Overview →
         <strong className="text-neutral-200"> Submit to Directory</strong>. It
         handles signing automatically. The form below is for advanced/manual use.
       </p>

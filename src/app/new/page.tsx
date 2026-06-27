@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useRef } from "react";
 
 type Step = 1 | 2 | 3 | 4;
@@ -68,16 +68,16 @@ export default function NewHubPage() {
   const discoveryUrl =
     typeof window !== "undefined"
       ? window.location.origin
-      : "https://discovery.voxply.app";
+      : "https://discovery.wavvon.app";
 
   const dockerCommand = bootstrapToken
-    ? `docker run -d --name voxply-hub \\
+    ? `docker run -d --name wavvon-hub \\
   -p 3000:3000 -p 3001:3001/udp \\
   -v $(pwd)/hub-data:/data \\
   -e DATABASE_URL=sqlite:///data/hub.db \\
-  -e VOXPLY_BOOTSTRAP_TOKEN=${bootstrapToken} \\
-  -e VOXPLY_DISCOVERY_URL=${discoveryUrl} \\
-  ghcr.io/voxply/hub:latest`
+  -e WAVVON_BOOTSTRAP_TOKEN=${bootstrapToken} \\
+  -e WAVVON_DISCOVERY_URL=${discoveryUrl} \\
+  ghcr.io/wavvon/hub:latest`
     : "Generating…";
 
   return (
@@ -394,7 +394,7 @@ export default function NewHubPage() {
                     borderRadius: 4,
                     fontSize: 12,
                   }}
-                >{`VOXPLY_BOOTSTRAP_TOKEN=${bootstrapToken} VOXPLY_DISCOVERY_URL=${discoveryUrl} ./voxply-hub`}</pre>
+                >{`WAVVON_BOOTSTRAP_TOKEN=${bootstrapToken} WAVVON_DISCOVERY_URL=${discoveryUrl} ./wavvon-hub`}</pre>
               </div>
             )}
             {deployPath === "farm" && selectedFarm && (

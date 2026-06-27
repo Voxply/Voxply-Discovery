@@ -1,4 +1,4 @@
-import { listHubs } from "@/lib/db";
+﻿import { listHubs } from "@/lib/db";
 import { HubCard } from "@/components/HubCard";
 import { SearchBar } from "@/components/SearchBar";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
@@ -21,8 +21,8 @@ export default async function HomePage({ searchParams }: PageProps) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Find your community</h1>
         <p className="text-neutral-400">
-          Browse Voxply hubs listed by their operators. Click any hub to preview
-          it, then open it directly in the Voxply app.
+          Browse Wavvon hubs listed by their operators. Click any hub to preview
+          it, then open it directly in the Wavvon app.
         </p>
       </div>
 

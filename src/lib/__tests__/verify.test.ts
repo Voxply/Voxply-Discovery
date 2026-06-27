@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+﻿import { describe, it, expect } from "vitest";
 import * as ed from "@noble/ed25519";
 import { verifySignature } from "../verify";
 
@@ -23,7 +23,7 @@ async function makeKeypairAndSign(message: string) {
 
 describe("verifySignature", () => {
   it("returns true for a valid signature", async () => {
-    const { pubkeyHex, sigHex, message } = await makeKeypairAndSign("hello voxply");
+    const { pubkeyHex, sigHex, message } = await makeKeypairAndSign("hello wavvon");
     expect(await verifySignature(pubkeyHex, sigHex, message)).toBe(true);
   });
 

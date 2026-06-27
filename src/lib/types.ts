@@ -1,4 +1,4 @@
-export interface HubListing {
+﻿export interface HubListing {
   hub_pubkey: string;
   hub_url: string;
   name: string;
@@ -72,6 +72,6 @@ export interface SkinItem extends SkinListItem {
 }
 
 export interface RegisterSkinPayload {
-  payload: string; // full .voxplyskin JSON
+  payload: string; // full .wavvonskin JSON
   sig: string;     // base64url Ed25519 sig over payload bytes
 }

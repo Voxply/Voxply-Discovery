@@ -1,15 +1,15 @@
-import type { HubListing } from "@/lib/types";
+﻿import type { HubListing } from "@/lib/types";
 import { HubIcon } from "./HubIcon";
 import { TagChip } from "./TagChip";
 
 export function HubCard({ hub }: { hub: HubListing }) {
-  const voxplyUrl = (() => {
+  const wavvonUrl = (() => {
     try {
       const u = new URL(hub.hub_url);
       const hp = u.port ? `${u.hostname}:${u.port}` : u.hostname;
       const invite = hub.invite_code ? `/${hub.invite_code}` : "";
-      return `voxply://${hp}${invite}`;
-    } catch { return `voxply://${hub.hub_url}`; }
+      return `wavvon://${hp}${invite}`;
+    } catch { return `wavvon://${hub.hub_url}`; }
   })();
 
   return (
@@ -41,10 +41,10 @@ export function HubCard({ hub }: { hub: HubListing }) {
 
       <div className="mt-auto pt-2 flex gap-2">
         <a
-          href={voxplyUrl}
+          href={wavvonUrl}
           className="flex-1 text-center py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-medium transition-colors"
         >
-          Open in Voxply
+          Open in Wavvon
         </a>
         <a
           href={`/hub/${hub.hub_pubkey}`}
