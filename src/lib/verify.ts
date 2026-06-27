@@ -1,4 +1,4 @@
-﻿import * as ed from "@noble/ed25519";
+import * as ed from "@noble/ed25519";
 
 // Verify an Ed25519 signature.
 // pubkeyHex and signatureHex are lowercase hex strings (as produced by the Rust hub).

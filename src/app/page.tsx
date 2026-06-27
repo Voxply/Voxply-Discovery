@@ -1,4 +1,4 @@
-﻿import { listHubs } from "@/lib/db";
+import { listHubs } from "@/lib/db";
 import { HubCard } from "@/components/HubCard";
 import { SearchBar } from "@/components/SearchBar";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";

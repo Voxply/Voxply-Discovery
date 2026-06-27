@@ -1,4 +1,4 @@
-﻿import { listFarms } from "@/lib/farms-db";
+import { listFarms } from "@/lib/farms-db";
 import type { FarmListing } from "@/lib/farms-db";
 
 interface PageProps {

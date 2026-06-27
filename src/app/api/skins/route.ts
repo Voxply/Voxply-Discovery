@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { listSkins, registerSkin } from "@/lib/db";
 import { verifySignature } from "@/lib/verify";

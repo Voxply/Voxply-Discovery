@@ -1,4 +1,4 @@
-﻿# Wavvon Discovery
+# Wavvon Discovery
 
 [![Build check](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml/badge.svg)](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml)
 

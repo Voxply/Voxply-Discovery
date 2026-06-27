@@ -1,4 +1,4 @@
-﻿export interface HubListing {
+export interface HubListing {
   hub_pubkey: string;
   hub_url: string;
   name: string;

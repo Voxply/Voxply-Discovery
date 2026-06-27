@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # Local CI mirror for Wavvon-discovery.
 # Run from the repo root, or let the pre-push hook call it automatically.
 set -euo pipefail

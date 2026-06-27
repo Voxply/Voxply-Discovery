@@ -1,4 +1,4 @@
-﻿import type { HubListing } from "@/lib/types";
+import type { HubListing } from "@/lib/types";
 import { HubIcon } from "./HubIcon";
 import { TagChip } from "./TagChip";
 

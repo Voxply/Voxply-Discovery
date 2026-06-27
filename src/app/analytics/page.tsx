@@ -1,4 +1,4 @@
-﻿import { getCachedAnalytics, refreshAnalytics } from "@/lib/analytics";
+import { getCachedAnalytics, refreshAnalytics } from "@/lib/analytics";
 import type { AnalyticsData } from "@/lib/analytics";
 
 function StatCard({ label, value }: { label: string; value: number }) {

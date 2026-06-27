@@ -1,4 +1,4 @@
-﻿import { listBots } from "@/lib/db";
+import { listBots } from "@/lib/db";
 import { BotCard } from "@/components/BotCard";
 
 interface Props {
