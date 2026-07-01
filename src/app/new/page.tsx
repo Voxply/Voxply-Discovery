@@ -71,13 +71,19 @@ export default function NewHubPage() {
       : "https://discovery.wavvon.app";
 
   const dockerCommand = bootstrapToken
-    ? `docker run -d --name wavvon-hub \\
-  -p 3000:3000 -p 3001:3001/udp \\
-  -v $(pwd)/hub-data:/data \\
-  -e DATABASE_URL=sqlite:///data/hub.db \\
-  -e WAVVON_BOOTSTRAP_TOKEN=${bootstrapToken} \\
-  -e WAVVON_DISCOVERY_URL=${discoveryUrl} \\
-  ghcr.io/wavvon/hub:latest`
+    ? `services:
+  wavvon-hub:
+    image: ghcr.io/wavvon/hub:latest
+    ports:
+      - "3000:3000"
+      - "3001:3001/udp"
+    volumes:
+      - ./hub-data:/data
+    environment:
+      DATABASE_URL: sqlite:///data/hub.db
+      WAVVON_BOOTSTRAP_TOKEN: ${bootstrapToken}
+      WAVVON_DISCOVERY_URL: ${discoveryUrl}
+    restart: unless-stopped`
     : "Generating…";
 
   return (
@@ -351,7 +357,8 @@ export default function NewHubPage() {
             {deployPath === "docker" && bootstrapToken && (
               <div>
                 <p style={{ color: "#96989d", fontSize: 14 }}>
-                  Run this command on your server. The token expires in 24
+                  Save this as <code>docker-compose.yml</code> and run{" "}
+                  <code>docker compose up -d</code>. The token expires in 24
                   hours.
                 </p>
                 <pre
@@ -378,7 +385,7 @@ export default function NewHubPage() {
                     marginTop: 8,
                   }}
                 >
-                  Copy
+                  Copy docker-compose.yml
                 </button>
               </div>
             )}
