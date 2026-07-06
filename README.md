@@ -3,7 +3,7 @@
 [![Build check](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml/badge.svg)](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml)
 
 The **optional public hub directory** for
-[Wavvon](https://github.com/Wavvon/Wavvon) — an open-source, federated
+[Wavvon](https://github.com/Wavvon/Wavvon-docs) — an open-source, federated
 voice + text platform where communities run their own servers.
 
 Wavvon has no central server, so there is nothing you *must* register
@@ -73,14 +73,14 @@ npm run lint       # eslint
 | Repo | What it is |
 |---|---|
 | [Wavvon-server](https://github.com/Wavvon/Wavvon-server) | Hub server, farm tooling, identity crate (Rust) |
-| [Wavvon-client](https://github.com/Wavvon/Wavvon-client) | All clients (desktop / web / Android) + shared packages |
+| [Wavvon-clients](https://github.com/Wavvon/Wavvon-clients) | All clients (desktop / web / Android) + shared packages |
 | **Wavvon-discovery** *(this repo)* | Optional public hub directory |
-| [Wavvon](https://github.com/Wavvon/Wavvon) | Architecture wiki, roadmap, API spec |
+| [Wavvon-docs](https://github.com/Wavvon/Wavvon-docs) | Architecture wiki, roadmap, API spec |
 
 Design docs:
-[hub-discovery.md](https://github.com/Wavvon/Wavvon/blob/main/docs/hub-discovery.md)
+[hub-discovery.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/hub-discovery.md)
 and
-[discovery-v2.md](https://github.com/Wavvon/Wavvon/blob/main/docs/discovery-v2.md).
+[discovery-v2.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/discovery-v2.md).
 
 ## Contributing
 
