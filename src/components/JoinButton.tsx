@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
 
-export function JoinButton({ voxplyUrl }: { voxplyUrl: string }) {
+export function JoinButton({ wavvonUrl }: { wavvonUrl: string }) {
   const [copied, setCopied] = useState(false);
 
   function copy() {
-    navigator.clipboard.writeText(voxplyUrl);
+    navigator.clipboard.writeText(wavvonUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -13,10 +13,10 @@ export function JoinButton({ voxplyUrl }: { voxplyUrl: string }) {
   return (
     <div className="flex gap-2">
       <a
-        href={voxplyUrl}
+        href={wavvonUrl}
         className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition-colors"
       >
-        Open in Voxply
+        Open in Wavvon
       </a>
       <button
         onClick={copy}

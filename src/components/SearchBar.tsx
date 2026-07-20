@@ -1,5 +1,6 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState, Suspense } from "react";
 
 interface Props {
@@ -42,9 +43,9 @@ function SearchBarInner({ defaultQ, defaultLanguage, defaultTag }: Props) {
         Search
       </button>
       {(defaultQ || defaultLanguage || defaultTag) && (
-        <a href="/" className="px-4 py-2 border border-neutral-700 hover:border-neutral-500 rounded-lg text-sm text-neutral-400 transition-colors">
+        <Link href="/" className="px-4 py-2 border border-neutral-700 hover:border-neutral-500 rounded-lg text-sm text-neutral-400 transition-colors">
           Clear
-        </a>
+        </Link>
       )}
     </form>
   );

@@ -99,7 +99,7 @@ export default async function FarmsPage({ searchParams }: PageProps) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Farm providers</h1>
         <p className="text-neutral-400 max-w-2xl">
-          Managed infrastructure providers that host Voxply hubs for communities
+          Managed infrastructure providers that host Wavvon hubs for communities
           that prefer not to run their own server.
         </p>
       </div>

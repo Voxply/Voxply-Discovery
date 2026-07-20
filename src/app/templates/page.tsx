@@ -47,7 +47,7 @@ export default async function TemplatesPage({ searchParams }: PageProps) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Hub config templates</h1>
         <p className="text-neutral-400 max-w-2xl">
-          Signed starter configs for Voxply hubs. Pick a template when creating
+          Signed starter configs for Wavvon hubs. Pick a template when creating
           a hub to pre-fill channels, roles, and settings.
         </p>
       </div>

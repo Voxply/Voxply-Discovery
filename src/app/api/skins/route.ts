@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "payload is not valid JSON" }, { status: 400 });
   }
 
-  if (parsed.format !== "voxply.skin") {
+  if (parsed.format !== "wavvon.skin") {
     return NextResponse.json({ error: "Invalid format field" }, { status: 400 });
   }
   if (parsed.version !== 1) {

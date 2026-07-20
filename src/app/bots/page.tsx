@@ -14,7 +14,7 @@ export default async function BotsPage({ searchParams }: Props) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Bot directory</h1>
         <p className="text-neutral-400 max-w-2xl">
-          Community-built bots for Voxply hubs. Copy a pubkey and paste it
+          Community-built bots for Wavvon hubs. Copy a pubkey and paste it
           in Hub Settings → Bots → Invite to add one to your community.
         </p>
       </div>

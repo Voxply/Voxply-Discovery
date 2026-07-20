@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true }, { status: 201 });
 }
 
-export async function validateAndUpsert(body: SubmitPayload, isUpdate: boolean) {
+export async function validateAndUpsert(body: SubmitPayload, _isUpdate: boolean) {
   const { hub_url, tags, language, bio, invite_code, canonical_payload, hub_pubkey, signature } = body;
 
   if (!hub_url || !hub_pubkey || !signature || !canonical_payload) {

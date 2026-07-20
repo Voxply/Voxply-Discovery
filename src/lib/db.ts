@@ -18,6 +18,11 @@ export function getDb(): Database.Database {
   return _db;
 }
 
+export function initDb(db: Database.Database): void {
+  migrate(db);
+  _db = db;
+}
+
 function migrate(db: Database.Database) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS hubs (
@@ -181,21 +186,19 @@ export function listHubs(opts: ListOptions = {}): { hubs: HubListing[]; total: n
     params.push(opts.language);
   }
 
+  const tags = opts.tag ? (Array.isArray(opts.tag) ? opts.tag : [opts.tag]) : [];
+  for (const tag of tags) {
+    conditions.push("EXISTS (SELECT 1 FROM json_each(hubs.tags) WHERE json_each.value = ?)");
+    params.push(tag);
+  }
+
   const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
   const rows = db.prepare(`SELECT * FROM hubs ${where} ORDER BY listed_at DESC LIMIT ? OFFSET ?`)
     .all([...params, limit, offset]) as HubRow[];
   const { count } = db.prepare(`SELECT COUNT(*) as count FROM hubs ${where}`)
     .get(params) as { count: number };
 
-  let hubs = rows.map(rowToListing);
-
-  // Tag filtering — done in JS since SQLite JSON support varies
-  const tags = opts.tag ? (Array.isArray(opts.tag) ? opts.tag : [opts.tag]) : [];
-  if (tags.length > 0) {
-    hubs = hubs.filter((h) => tags.every((t) => h.tags.includes(t)));
-  }
-
-  return { hubs, total: count };
+  return { hubs: rows.map(rowToListing), total: count };
 }
 
 export function getHub(pubkey: string): HubListing | null {

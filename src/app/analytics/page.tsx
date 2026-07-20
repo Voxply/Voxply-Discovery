@@ -21,7 +21,7 @@ export default function AnalyticsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Ecosystem analytics</h1>
         <p className="text-neutral-400 max-w-2xl">
-          Aggregate counts of the Voxply registry — operator-published metadata only.
+          Aggregate counts of the Wavvon registry — operator-published metadata only.
           No user data, no message data, no tracking.
         </p>
         <p className="text-xs text-neutral-600 mt-2">

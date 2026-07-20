@@ -1,5 +1,6 @@
 import { getHub } from "@/lib/db";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { HubIcon } from "@/components/HubIcon";
 import { TagChip } from "@/components/TagChip";
 import { JoinButton } from "@/components/JoinButton";
@@ -11,20 +12,20 @@ export default async function HubPage({ params }: Props) {
   const hub = getHub(pubkey);
   if (!hub) notFound();
 
-  const voxplyUrl = (() => {
+  const wavvonUrl = (() => {
     try {
       const u = new URL(hub.hub_url);
       const hp = u.port ? `${u.hostname}:${u.port}` : u.hostname;
       const invite = hub.invite_code ? `/${hub.invite_code}` : "";
-      return `voxply://${hp}${invite}`;
-    } catch { return `voxply://${hub.hub_url}`; }
+      return `wavvon://${hp}${invite}`;
+    } catch { return `wavvon://${hub.hub_url}`; }
   })();
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      <a href="/" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
+      <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
         ← Back to directory
-      </a>
+      </Link>
 
       <div className="flex items-start gap-5 mb-6">
         <HubIcon icon={hub.icon} name={hub.name} size="lg" />
@@ -64,7 +65,7 @@ export default async function HubPage({ params }: Props) {
       )}
 
       <div className="flex gap-3">
-        <JoinButton voxplyUrl={voxplyUrl} />
+        <JoinButton wavvonUrl={wavvonUrl} />
         <a
           href={hub.hub_url}
           target="_blank"

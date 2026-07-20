@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -18,30 +18,36 @@ interface Farm {
   farm_url: string;
 }
 
+function readQueryParams(): { templateId: string | null; deployPath: "farm" | "docker" | "binary" } {
+  if (typeof window === "undefined") return { templateId: null, deployPath: "docker" };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    templateId: params.get("template_id"),
+    deployPath: params.get("farm") ? "farm" : "docker",
+  };
+}
+
 export default function NewHubPage() {
+  const initRef = useRef(false);
   const [step, setStep] = useState<Step>(1);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(() => readQueryParams().templateId);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [hubName, setHubName] = useState("");
   const [hubDesc, setHubDesc] = useState("");
   const [bootstrapToken, setBootstrapToken] = useState<string | null>(null);
-  const [deployPath, setDeployPath] = useState<"farm" | "docker" | "binary">("docker");
+  const [deployPath, setDeployPath] = useState<"farm" | "docker" | "binary">(() => readQueryParams().deployPath);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
   useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
     fetch("/api/templates")
       .then((r) => r.json())
       .then((d: { templates?: Template[] }) => setTemplates(d.templates ?? []));
     fetch("/api/farms")
       .then((r) => r.json())
       .then((d: { farms?: Farm[] }) => setFarms(d.farms ?? []));
-    // Pre-fill from query params if coming from template/farm catalog
-    const params = new URLSearchParams(window.location.search);
-    const tid = params.get("template_id");
-    if (tid) setSelectedTemplate(tid);
-    const furl = params.get("farm");
-    if (furl) setDeployPath("farm");
   }, []);
 
   async function generateToken() {
@@ -62,16 +68,22 @@ export default function NewHubPage() {
   const discoveryUrl =
     typeof window !== "undefined"
       ? window.location.origin
-      : "https://discovery.voxply.app";
+      : "https://discovery.wavvon.app";
 
   const dockerCommand = bootstrapToken
-    ? `docker run -d --name voxply-hub \\
-  -p 3000:3000 -p 3001:3001/udp \\
-  -v $(pwd)/hub-data:/data \\
-  -e DATABASE_URL=sqlite:///data/hub.db \\
-  -e VOXPLY_BOOTSTRAP_TOKEN=${bootstrapToken} \\
-  -e VOXPLY_DISCOVERY_URL=${discoveryUrl} \\
-  ghcr.io/voxply/hub:latest`
+    ? `services:
+  wavvon-hub:
+    image: ghcr.io/wavvon/hub:latest
+    ports:
+      - "3000:3000"
+      - "3001:3001/udp"
+    volumes:
+      - ./hub-data:/data
+    environment:
+      DATABASE_URL: sqlite:///data/hub.db
+      WAVVON_BOOTSTRAP_TOKEN: ${bootstrapToken}
+      WAVVON_DISCOVERY_URL: ${discoveryUrl}
+    restart: unless-stopped`
     : "Generating…";
 
   return (
@@ -345,7 +357,8 @@ export default function NewHubPage() {
             {deployPath === "docker" && bootstrapToken && (
               <div>
                 <p style={{ color: "#96989d", fontSize: 14 }}>
-                  Run this command on your server. The token expires in 24
+                  Save this as <code>docker-compose.yml</code> and run{" "}
+                  <code>docker compose up -d</code>. The token expires in 24
                   hours.
                 </p>
                 <pre
@@ -372,7 +385,7 @@ export default function NewHubPage() {
                     marginTop: 8,
                   }}
                 >
-                  Copy
+                  Copy docker-compose.yml
                 </button>
               </div>
             )}
@@ -388,7 +401,7 @@ export default function NewHubPage() {
                     borderRadius: 4,
                     fontSize: 12,
                   }}
-                >{`VOXPLY_BOOTSTRAP_TOKEN=${bootstrapToken} VOXPLY_DISCOVERY_URL=${discoveryUrl} ./voxply-hub`}</pre>
+                >{`WAVVON_BOOTSTRAP_TOKEN=${bootstrapToken} WAVVON_DISCOVERY_URL=${discoveryUrl} ./wavvon-hub`}</pre>
               </div>
             )}
             {deployPath === "farm" && selectedFarm && (

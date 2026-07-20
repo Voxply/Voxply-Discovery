@@ -1,43 +1,94 @@
-# Voxply-discovery
+# Wavvon Discovery
 
-Hub discovery service for the [Voxply](https://github.com/Voxply/Voxply) platform.
-A web app where hub operators register their public hubs and users
-browse or search for communities to join.
+[![Build check](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml/badge.svg)](https://github.com/Wavvon/Wavvon-discovery/actions/workflows/build.yml)
 
-Part of the Voxply project — see the
-[docs repo](https://github.com/Voxply/Voxply) for architecture and API spec,
-and the [roadmap](https://github.com/Voxply/Voxply/blob/main/ROADMAP.md) for what's next.
+The **optional public hub directory** for
+[Wavvon](https://github.com/Wavvon/Wavvon-docs) — an open-source, federated
+voice + text platform where communities run their own servers.
 
-## Technologies
+Wavvon has no central server, so there is nothing you *must* register
+with — hubs are joined by URL. Discovery exists purely as a
+convenience: hub operators can list their public hubs here, and users
+can browse and search for communities to join. Hubs work exactly the
+same without it, and because this service is open source you can run
+your own directory for your own network.
 
-- **Next.js 16** — React framework with App Router
-- **React 19** + **TypeScript** — UI layer
-- **Tailwind CSS 4** — utility-first styling
-- **SQLite** via better-sqlite3 — embedded hub registry
-- **@noble/ed25519** — Ed25519 signature verification for hub profiles
+## What it does
 
-## Quick start
+- **Hub directory** — operators submit their hub (`/submit`); listings
+  are Ed25519-signed by the hub's own key, so only a hub can publish or
+  update its profile. Browse and search with uptime tracking.
+- **Hub creation wizard** (`/new`) — pick a config template and get a
+  ready-to-boot hub bootstrap.
+- **Farm catalog** — browse public farms (multi-hub deployments).
+- **Bot directory** — published bots, invitable by public key.
+- **Skins gallery** — community `.wavvonskin` themes, signed by their
+  authors, shown in the Appearance tab of every client.
+- **Config template catalog** — signed channel/role templates for new
+  hubs.
+
+## Run it
 
 Requires [Node 20+](https://nodejs.org).
 
 ```bash
+git clone https://github.com/Wavvon/Wavvon-discovery
+cd Wavvon-discovery
 npm install
 npm run dev
 # Open http://localhost:3000
 ```
 
-## Building
+Production:
 
 ```bash
 npm run build
 npm start
 ```
 
-## Type checking
+State lives in a single SQLite database at `./data/discovery.db`
+(created automatically). To enable hub uptime tracking, point a cron
+job at `POST /api/internal/ping-hubs` and set the `CRON_SECRET`
+environment variable to guard it.
+
+Hubs choose which directory they announce to via the `discovery_url`
+setting in [Wavvon-server](https://github.com/Wavvon/Wavvon-server).
+
+> Note for contributors: this repo pins a Next.js version with breaking
+> changes from older releases. Read the bundled guide under
+> `node_modules/next/dist/docs/` before touching the App Router code.
+
+## Tech
+
+Next.js (App Router) · React · TypeScript · Tailwind CSS · SQLite via
+better-sqlite3 · `@noble/ed25519` for signature verification.
 
 ```bash
-npx tsc --noEmit
+npx tsc --noEmit   # type check
+npm run lint       # eslint
 ```
+
+## The Wavvon project
+
+| Repo | What it is |
+|---|---|
+| [Wavvon-server](https://github.com/Wavvon/Wavvon-server) | Hub server, farm tooling, identity crate (Rust) |
+| [Wavvon-clients](https://github.com/Wavvon/Wavvon-clients) | All clients (desktop / web / Android) + shared packages |
+| **Wavvon-discovery** *(this repo)* | Optional public hub directory |
+| [Wavvon-docs](https://github.com/Wavvon/Wavvon-docs) | Architecture wiki, roadmap, API spec |
+
+Design docs:
+[hub-discovery.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/hub-discovery.md)
+and
+[discovery-v2.md](https://github.com/Wavvon/Wavvon-docs/blob/main/docs/discovery-v2.md).
+
+## Contributing
+
+Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+GNU Affero General Public License v3.0.
 
 ## Built with AI assistance
 
@@ -49,7 +100,3 @@ adjusted, and accepted.
 
 Calling this out for transparency — it's not a fully hand-written
 codebase, and pretending otherwise wouldn't be honest.
-
-## License
-
-[GNU Affero General Public License v3.0](LICENSE).
