@@ -3,7 +3,12 @@ import path from "path";
 import fs from "fs";
 import type { HubListing, BotListing, BotListingInput, BotCommand, SkinListItem, SkinItem } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+// Overridable so a test topology never shares the dev database. A suite that
+// writes into `data/discovery.db` is a suite whose second run disagrees with its
+// first, for reasons that have nothing to do with the code under test.
+const DATA_DIR = process.env.WAVVON_DISCOVERY_DATA_DIR
+  ? path.resolve(process.env.WAVVON_DISCOVERY_DATA_DIR)
+  : path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "discovery.db");
 
 let _db: Database.Database | null = null;
