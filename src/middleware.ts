@@ -22,8 +22,8 @@ export function middleware(req: NextRequest) {
   }
 
   // A first segment shaped like a language tag but not one we speak is a
-  // request for a language we do not have — `/fr/hubs` should say so, not
-  // become `/en/fr/hubs`, which 404s on a path nobody asked for.
+  // request for a language we do not have — `/ja/hubs` should say so, not
+  // become `/en/ja/hubs`, which 404s on a path nobody asked for.
   if (/^[a-z]{2,3}(-[a-z0-9]{2,8})?$/i.test(first)) {
     return NextResponse.next();
   }

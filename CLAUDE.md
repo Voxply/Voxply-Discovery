@@ -71,7 +71,15 @@ that is written by whoever published it, in whatever language they chose.
 
 **The locale list here is not the clients' list.** A directory is read by people
 deciding whether to arrive; a client is used by people who already did. The two
-can diverge, and the clients' four are not a target to match.
+can diverge, and what the clients ship is not a target to match. Today this site
+speaks six: English, German, Spanish, French, Italian, Portuguese.
+
+**Only the English is first-party.** The other five were written by the project,
+not by speakers who reviewed them, so a wording fix from a native speaker is a
+correction to take, not a proposal to weigh. The bar for adding a language is
+therefore completeness rather than polish: an awkward page in the reader's
+language beats a fluent one they have to translate in their head, and the
+failure worth blocking is a *missing* key, which `check-i18n` blocks.
 
 ## Commands
 

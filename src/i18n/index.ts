@@ -1,5 +1,9 @@
 import en from "./locales/en.json";
+import de from "./locales/de.json";
+import es from "./locales/es.json";
+import fr from "./locales/fr.json";
 import it from "./locales/it.json";
+import pt from "./locales/pt.json";
 import { DEFAULT_LOCALE, type Locale } from "./config";
 
 /* Translation, in about forty lines.
@@ -14,7 +18,7 @@ import { DEFAULT_LOCALE, type Locale } from "./config";
  * page reading `hubs.intro` is not. `check-i18n` makes sure it cannot happen
  * anyway. */
 
-const DICTIONARIES: Record<Locale, Record<string, string>> = { en, it };
+const DICTIONARIES: Record<Locale, Record<string, string>> = { en, de, es, fr, it, pt };
 
 export type Dictionary = ReturnType<typeof getDictionary>;
 
