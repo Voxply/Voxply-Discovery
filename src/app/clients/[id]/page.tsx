@@ -2,11 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { clientsByAuthor, getClient } from "@/lib/clients-db";
-import { CLIENT_FEATURES, languageName, type ClientFeature } from "@/lib/facets";
+import { CLIENT_FEATURES, FEATURE_LABELS, languageName, type ClientFeature } from "@/lib/facets";
 import { GITHUB } from "@/lib/links";
 import { Avatar, Chip, MetaRow, SectionLabel, VerifiedBadge } from "@/components/ui";
-import { getDictionary } from "@/i18n";
-import { isLocale, type Locale } from "@/i18n/config";
 import type { FeatureSupport } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +12,12 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; id: string }>;
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
   const client = getClient(id);
-  return client ? { title: client.name, description: client.tagline } : { title: "Client" };
+  if (!client) return { title: "Client not found" };
+  return { title: client.name, description: client.tagline };
 }
 
 function SupportMark({ support }: { support: FeatureSupport }) {
@@ -34,7 +33,7 @@ function SupportMark({ support }: { support: FeatureSupport }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className="shrink-0"
-        aria-hidden="true"
+        aria-label="supported"
       >
         <path d="m5 12.5 4.5 4.5L19 7.5" />
       </svg>
@@ -42,7 +41,7 @@ function SupportMark({ support }: { support: FeatureSupport }) {
   }
   if (support === "partial") {
     return (
-      <span className="flex w-[15px] shrink-0 justify-center" aria-hidden="true">
+      <span className="flex w-[15px] shrink-0 justify-center" aria-label="partly supported">
         <span className="h-0.5 w-[11px] rounded bg-warning" />
       </span>
     );
@@ -57,7 +56,7 @@ function SupportMark({ support }: { support: FeatureSupport }) {
       strokeWidth="2.4"
       strokeLinecap="round"
       className="shrink-0"
-      aria-hidden="true"
+      aria-label="not supported"
     >
       <path d="m7 7 10 10M17 7 7 17" />
     </svg>
@@ -67,13 +66,9 @@ function SupportMark({ support }: { support: FeatureSupport }) {
 export default async function ClientDetailPage({
   params,
 }: {
-  params: Promise<{ locale: string; id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const { locale: rawLocale, id } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : "en";
-  const t = getDictionary(locale);
-  const clientsBase = `/${locale}/clients`;
-
+  const { id } = await params;
   const client = getClient(id);
   if (!client) notFound();
 
@@ -81,22 +76,22 @@ export default async function ClientDetailPage({
   const siblings = clientsByAuthor(client.author_pubkey, client.id);
   const declared = CLIENT_FEATURES.filter((f) => doc.features?.[f]);
   const reportUrl = `${GITHUB.discovery}/issues/new?title=${encodeURIComponent(
-    t("hub.report.subject", { name: client.name })
-  )}&body=${encodeURIComponent(`Client: ${client.name}\nListing id: ${client.id}\n\n`)}`;
+    `Broken listing: ${client.name}`
+  )}&body=${encodeURIComponent(`Client: ${client.name}\nListing id: ${client.id}\n\nWhat is wrong:\n`)}`;
 
   return (
     <>
-      <section className="px-12 pt-7 max-sm:px-6">
+      <section className="px-12 pt-7">
         <div className="mx-auto flex max-w-[1200px] items-center gap-2 font-mono text-xs text-text-faint">
-          <Link href={clientsBase} className="text-text-muted">
-            {t("nav.clients").toLowerCase()}
+          <Link href="/clients" className="text-text-muted">
+            clients
           </Link>
           <span>/</span>
           <span>{client.name}</span>
         </div>
       </section>
 
-      <section className="border-b border-border px-12 pt-7 pb-9 max-sm:px-6">
+      <section className="border-b border-border px-12 pt-7 pb-9">
         <div className="mx-auto flex max-w-[1200px] items-start gap-[22px] max-sm:flex-col">
           <Avatar name={client.name} size={84} accent={client.official} />
           <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -105,7 +100,7 @@ export default async function ClientDetailPage({
                 {client.name}
               </h1>
               <Chip
-                label={client.official ? t("client.official") : t("client.community")}
+                label={client.official ? "official client" : "community client"}
                 tone={client.official ? "accent" : "muted"}
               />
             </div>
@@ -127,15 +122,15 @@ export default async function ClientDetailPage({
         </div>
       </section>
 
-      <section className="flex-1 px-12 pt-10 pb-20 max-sm:px-6">
+      <section className="flex-1 px-12 pt-10 pb-20">
         <div className="mx-auto grid max-w-[1200px] grid-cols-[minmax(0,1fr)_320px] items-start gap-10 max-lg:grid-cols-1">
           <div className="flex flex-col gap-8">
             {doc.screenshots && doc.screenshots.length > 0 ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-baseline gap-3">
-                  <SectionLabel>{t("client.screenshots")}</SectionLabel>
+                  <SectionLabel>Screenshots</SectionLabel>
                   <span className="font-mono text-[11px] text-text-ghost">
-                    {t("client.screenshots_note")}
+                    supplied by the maintainer
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
@@ -145,7 +140,7 @@ export default async function ClientDetailPage({
                     <img
                       key={src}
                       src={src}
-                      alt={t("client.screenshot_alt", { name: client.name, index: i + 1 })}
+                      alt={`${client.name} screenshot ${i + 1}`}
                       loading="lazy"
                       referrerPolicy="no-referrer"
                       className="w-full rounded-xl border border-border"
@@ -156,7 +151,7 @@ export default async function ClientDetailPage({
             ) : null}
 
             <div className="flex flex-col gap-3">
-              <SectionLabel>{t("client.about")}</SectionLabel>
+              <SectionLabel>About</SectionLabel>
               {doc.description.split(/\n{2,}/).map((paragraph, i) => (
                 <p key={i} className="text-[15px] leading-[1.7] text-text-muted text-pretty">
                   {paragraph}
@@ -166,7 +161,7 @@ export default async function ClientDetailPage({
 
             {declared.length > 0 ? (
               <div className="flex flex-col gap-3">
-                <SectionLabel>{t("client.supports")}</SectionLabel>
+                <SectionLabel>What it supports</SectionLabel>
                 <div className="overflow-hidden rounded-xl border border-border">
                   <div className="grid grid-cols-2 max-sm:grid-cols-1">
                     {declared.map((feature: ClientFeature) => {
@@ -182,7 +177,7 @@ export default async function ClientDetailPage({
                               entry.support === "none" ? "text-text-faint" : "text-text"
                             }`}
                           >
-                            {t(`feature.${feature}`)}
+                            {FEATURE_LABELS[feature]}
                           </span>
                           {entry.note ? (
                             <span className="ml-auto font-mono text-[11px] text-warning">
@@ -194,7 +189,10 @@ export default async function ClientDetailPage({
                     })}
                   </div>
                 </div>
-                <p className="text-[13px] leading-relaxed text-text-faint">{t("client.supports_note")}</p>
+                <p className="text-[13px] leading-relaxed text-text-faint">
+                  Declared by the maintainer in the listing, not tested by this directory. If something
+                  here is wrong, report it.
+                </p>
               </div>
             ) : null}
           </div>
@@ -202,7 +200,7 @@ export default async function ClientDetailPage({
           <aside className="flex flex-col gap-4">
             {doc.downloads && doc.downloads.length > 0 ? (
               <div className="flex flex-col gap-2.5 rounded-xl border border-accent-border bg-bg-elevated p-5">
-                <SectionLabel>{t("client.get_it")}</SectionLabel>
+                <SectionLabel>Get it</SectionLabel>
                 {doc.downloads.map((download, i) => (
                   <a
                     key={download.url}
@@ -219,17 +217,18 @@ export default async function ClientDetailPage({
                   </a>
                 ))}
                 <p className="pt-0.5 text-xs leading-relaxed text-text-faint">
-                  {t("client.downloads_note")}
+                  Downloads come from the maintainer&rsquo;s own release page. This directory does not
+                  host or scan binaries.
                 </p>
               </div>
             ) : null}
 
             <div className="flex flex-col gap-3.5 rounded-xl border border-border bg-bg-elevated p-5">
-              <SectionLabel>{t("client.maintained_by")}</SectionLabel>
+              <SectionLabel>Maintained by</SectionLabel>
               <div className="flex items-center gap-3">
                 <Avatar name={doc.maintainer || "?"} size={40} />
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-sm font-semibold">{doc.maintainer || t("client.unnamed")}</span>
+                  <span className="text-sm font-semibold">{doc.maintainer || "Unnamed"}</span>
                   {doc.homepage_url ? (
                     <a href={doc.homepage_url} rel="noreferrer nofollow" className="font-mono text-[11px]">
                       {doc.homepage_url.replace(/^https?:\/\//, "")}
@@ -239,27 +238,30 @@ export default async function ClientDetailPage({
               </div>
               <div className="flex flex-col gap-1.5">
                 <span className="font-mono text-[11px] tracking-[0.6px] text-text-faint uppercase">
-                  {t("client.signing_key")}
+                  Signing key
                 </span>
                 <span className="font-mono text-[11px] leading-relaxed break-all text-text-muted">
                   {client.author_pubkey}
                 </span>
               </div>
-              <VerifiedBadge label={t("ui.listing_verified")} />
-              <p className="text-xs leading-relaxed text-text-faint">{t("client.key_note")}</p>
+              <VerifiedBadge label="Listing signature verified" />
+              <p className="text-xs leading-relaxed text-text-faint">
+                The key is the identity. It proves the same person published every version of this
+                listing — not who they are.
+              </p>
               {siblings.length > 0 ? (
                 <Link
-                  href={`${clientsBase}?q=${encodeURIComponent(doc.maintainer)}`}
+                  href={`/clients?q=${encodeURIComponent(doc.maintainer)}`}
                   className="flex items-center justify-center rounded border border-border py-2.5 text-xs font-medium text-text-muted hover:border-border-strong hover:text-text"
                 >
-                  {t("client.more_by_key", { count: siblings.length })}
+                  {siblings.length} more by this key
                 </Link>
               ) : null}
             </div>
 
             {client.languages.length > 0 ? (
               <div className="flex flex-col gap-3 rounded-xl border border-border bg-bg-elevated p-5">
-                <SectionLabel>{t("client.interface_language")}</SectionLabel>
+                <SectionLabel>Interface language</SectionLabel>
                 <div className="flex flex-wrap gap-1.5">
                   {client.languages.map((tag) => (
                     <span
@@ -270,44 +272,50 @@ export default async function ClientDetailPage({
                     </span>
                   ))}
                 </div>
-                <p className="text-xs leading-relaxed text-text-faint">{t("client.language_note")}</p>
+                <p className="text-xs leading-relaxed text-text-faint">
+                  Each client is translated by whoever maintains it, so coverage differs from one to the
+                  next.
+                </p>
                 {doc.source_url ? (
                   <a href={doc.source_url} rel="noreferrer nofollow" className="font-mono text-xs">
-                    {t("client.contribute")}
+                    contribute a translation &rarr;
                   </a>
                 ) : null}
               </div>
             ) : null}
 
             <div className="flex flex-col gap-3 rounded-xl border border-border bg-bg-elevated p-5">
-              <SectionLabel>{t("client.project")}</SectionLabel>
+              <SectionLabel>Project</SectionLabel>
               {doc.source_url ? (
-                <MetaRow label={t("client.source")}>
+                <MetaRow label="Source">
                   <a href={doc.source_url} rel="noreferrer nofollow">
-                    {t("client.repository")}
+                    repository &rarr;
                   </a>
                 </MetaRow>
               ) : null}
-              {doc.license ? <MetaRow label={t("client.licence")}>{doc.license}</MetaRow> : null}
-              {doc.built_with ? <MetaRow label={t("client.built_with")}>{doc.built_with}</MetaRow> : null}
+              {doc.license ? <MetaRow label="Licence">{doc.license}</MetaRow> : null}
+              {doc.built_with ? <MetaRow label="Built with">{doc.built_with}</MetaRow> : null}
               {doc.latest_version ? (
-                <MetaRow label={t("client.latest")}>
+                <MetaRow label="Latest">
                   {doc.latest_version}
                   {doc.released_at ? ` · ${doc.released_at.slice(0, 10)}` : ""}
                 </MetaRow>
               ) : null}
-              <MetaRow label={t("client.listed")}>{client.listed_at.slice(0, 10)}</MetaRow>
+              <MetaRow label="Listed">{client.listed_at.slice(0, 10)}</MetaRow>
             </div>
 
             <div className="flex flex-col gap-2.5 rounded-xl border border-border bg-bg-elevated p-5">
-              <p className="text-xs leading-relaxed text-text-faint">{t("client.disclaimer")}</p>
+              <p className="text-xs leading-relaxed text-text-faint">
+                This directory did not build, review or audit this client. Treat it like any other
+                program you install.
+              </p>
               <a
                 href={reportUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-center rounded border border-border py-2.5 text-xs font-medium text-text-muted hover:border-border-strong hover:text-text"
               >
-                {t("ui.report_broken")}
+                Report a broken listing
               </a>
             </div>
           </aside>

@@ -8,14 +8,11 @@ import { useState } from "react";
  */
 export function CopyButton({
   value,
-  label,
-  copiedLabel,
+  label = "copy",
   variant = "ghost",
 }: {
   value: string;
-  label: string;
-  /** Shown for two seconds after a successful copy. */
-  copiedLabel: string;
+  label?: string;
   variant?: "ghost" | "primary";
 }) {
   const [copied, setCopied] = useState(false);
@@ -57,7 +54,7 @@ export function CopyButton({
         <rect x="9" y="9" width="11" height="11" rx="2" />
         <path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V4.5A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5" />
       </svg>
-      {copied ? copiedLabel : label}
+      {copied ? "copied" : label}
     </button>
   );
 }

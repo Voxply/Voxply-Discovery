@@ -20,9 +20,17 @@ export const CLIENT_PLATFORMS = [
 
 export type ClientPlatform = (typeof CLIENT_PLATFORMS)[number];
 
+export const PLATFORM_LABELS: Record<ClientPlatform, string> = {
+  web: "Web",
+  windows: "Windows",
+  macos: "macOS",
+  linux: "Linux",
+  android: "Android",
+  ios: "iOS",
+  terminal: "Terminal",
+};
 
-/** User-facing capabilities a client may implement, in display order.
- *  Labels live in the dictionaries as `feature.<key>`. */
+/** User-facing capabilities a client may implement, in display order. */
 export const CLIENT_FEATURES = [
   "text",
   "voice",
@@ -39,6 +47,19 @@ export const CLIENT_FEATURES = [
 
 export type ClientFeature = (typeof CLIENT_FEATURES)[number];
 
+export const FEATURE_LABELS: Record<ClientFeature, string> = {
+  text: "Text channels",
+  voice: "Voice",
+  screenshare: "Screen share",
+  video: "Webcam video",
+  "encrypted-dms": "End-to-end encrypted DMs",
+  alliances: "Alliance channels",
+  bots: "Bots",
+  attachments: "Attachments",
+  games: "Games",
+  pairing: "Multi-device pairing",
+  recovery: "Recovery phrase",
+};
 
 /** The handful of features worth offering as a browse filter. */
 export const FILTERABLE_FEATURES: ClientFeature[] = [
@@ -89,8 +110,6 @@ export function languageName(tag: string): string {
  * ask for as well as what it did, which only means something if the full list
  * is known here rather than inferred from whatever the listing happens to
  * mention. */
-/** Labels and their plain-language meanings live in the dictionaries as
- *  `capability.<key>` and `capability.<key>.meaning`. */
 export const BOT_CAPABILITIES = [
   "commands",
   "post-messages",
@@ -102,7 +121,23 @@ export const BOT_CAPABILITIES = [
 
 export type BotCapability = (typeof BOT_CAPABILITIES)[number];
 
+export const BOT_CAPABILITY_LABELS: Record<BotCapability, string> = {
+  commands: "Slash commands",
+  "post-messages": "Post messages",
+  "read-messages": "Read messages",
+  "post-media": "Post media",
+  moderate: "Moderate",
+  "mini-apps": "Mini-apps",
+};
 
+export const BOT_CAPABILITY_MEANINGS: Record<BotCapability, string> = {
+  commands: "Registers its commands in the channels you add it to.",
+  "post-messages": "Writes into the channels you add it to.",
+  "read-messages": "Sees the conversation, not only the commands aimed at it.",
+  "post-media": "Uploads images and files.",
+  moderate: "Can time out, kick or ban, within the roles you give it.",
+  "mini-apps": "Opens an embedded view inside the client.",
+};
 
 export function isBotCapability(value: string): value is BotCapability {
   return (BOT_CAPABILITIES as readonly string[]).includes(value);

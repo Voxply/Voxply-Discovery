@@ -52,35 +52,6 @@ Commit to **`develop`**. See `CONTRIBUTING.md`.
 
 ---
 
-## The site is translated, and the gate is a build step
-
-Strings live in `src/i18n/locales/<locale>.json` as flat dotted keys — the same
-convention `packages/i18n` uses in the clients repo, so a translator meets one
-format across both. `npm run check-i18n` fails when a locale is missing a key
-English defines, because a gap falls back to English at runtime and shows up as
-one English sentence in the middle of an Italian page. Adding a language is a
-file plus a line in `src/i18n/config.ts`; there is no library and no provider,
-since every page here is a server component.
-
-**Nothing user-facing is a literal.** Labels for platforms, features and bot
-capabilities used to live in `facets.ts` as English maps; they are
-`platform.<key>`, `feature.<key>` and `capability.<key>` now, and the doc
-registry holds slugs and paths rather than titles. What stays untranslated is
-listing content — a hub's name and bio, a bot's command descriptions — because
-that is written by whoever published it, in whatever language they chose.
-
-**The locale list here is not the clients' list.** A directory is read by people
-deciding whether to arrive; a client is used by people who already did. The two
-can diverge, and what the clients ship is not a target to match. Today this site
-speaks six: English, German, Spanish, French, Italian, Portuguese.
-
-**Only the English is first-party.** The other five were written by the project,
-not by speakers who reviewed them, so a wording fix from a native speaker is a
-correction to take, not a proposal to weigh. The bar for adding a language is
-therefore completeness rather than polish: an awkward page in the reader's
-language beats a fluent one they have to translate in their head, and the
-failure worth blocking is a *missing* key, which `check-i18n` blocks.
-
 ## Commands
 
 ```bash
@@ -94,6 +65,25 @@ npm run test         # vitest
 ---
 
 ## Constraints
+
+**This site is English only, deliberately.** It was translated into six
+languages on 2026-08-29 and the whole thing was reverted the same day. The
+reason is not effort: it is that the *content* was never translatable in the
+first place. A hub's name and bio, a bot's command descriptions, a client's
+README — all of it is written by whoever published it, in whatever language
+they chose, and no directory can translate that. Only the frame around it was
+ever in Italian, so a Portuguese reader got Portuguese navigation wrapped
+around English listings. That is not a translated site; it is a translated
+menu bar, bought with `[locale]` routing, an Accept-Language middleware, a
+switcher, a coverage gate, six catalogues to keep in step, and 168 prerendered
+documentation pages instead of 28.
+
+The clients are the opposite case and stay translated: there the strings *are*
+the product, and the reader has already arrived.
+
+Don't reintroduce i18n here. If it ever comes back, the thing that would make
+it worth it is publishers declaring translations of their own listing text —
+start there, not with the chrome.
 
 **Next.js 16 differs significantly from earlier versions.** Check
 `node_modules/next/dist/docs/` before writing Next.js-specific code rather than

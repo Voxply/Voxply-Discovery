@@ -4,8 +4,6 @@ import { botTagCounts, listBots } from "@/lib/db";
 import { DOCS, keyParam } from "@/lib/links";
 import { Avatar, EmptyState, PageIntro, Tag } from "@/components/ui";
 import { CopyButton } from "@/components/CopyButton";
-import { getDictionary } from "@/i18n";
-import { isLocale, type Locale } from "@/i18n/config";
 import {
   hasAnyFilter,
   OpenFacet,
@@ -17,17 +15,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const FILTER_KEYS = ["q", "tag"];
+export const metadata: Metadata = {
+  title: "Bots",
+  description: "A bot is an Ed25519 key that speaks the same API you do. Copy it, invite it, done.",
+};
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = getDictionary(isLocale(locale) ? locale : "en");
-  return { title: t("bots.title"), description: t("bots.intro.before") };
-}
+const BASE = "/bots";
+const FILTER_KEYS = ["q", "tag"];
 
 function one(params: Params, key: string): string | undefined {
   const raw = params[key];
@@ -45,73 +39,65 @@ function shortKey(pubkey: string): string {
   return hex.length > 12 ? `ed25519:${hex.slice(0, 4)}…${hex.slice(-4)}` : pubkey;
 }
 
-export default async function BotsPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<Params>;
-}) {
-  const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : "en";
-  const t = getDictionary(locale);
-  const base = `/${locale}/bots`;
-
-  const query = await searchParams;
-  const bots = listBots({ search: one(query, "q"), tag: many(query, "tag") });
+export default async function BotsPage({ searchParams }: { searchParams: Promise<Params> }) {
+  const params = await searchParams;
+  const bots = listBots({ search: one(params, "q"), tag: many(params, "tag") });
   const total = listBots({}).length;
   const tagCounts = botTagCounts();
-  const filtered = hasAnyFilter(query, FILTER_KEYS);
+  const filtered = hasAnyFilter(params, FILTER_KEYS);
 
   return (
     <>
-      <PageIntro title={t("bots.title")}>
-        {t("bots.intro.before")} <span className="font-mono text-text-dim">{t("bots.intro.path")}</span>
-        {t("bots.intro.after")}
+      <PageIntro title="Bots">
+        A bot is an Ed25519 key that speaks the same API you do. To add one, copy its public key and
+        paste it into your hub under{" "}
+        <span className="font-mono text-text-dim">Settings → Bots → Invite</span>. Nothing is installed
+        on the hub, and the bot only sees the channels you give it.
       </PageIntro>
 
       <RailLayout
         rail={
           <>
-            <SearchBox name="q" placeholder={t("bots.search")} defaultValue={one(query, "q")} hidden={query} />
+            <SearchBox name="q" placeholder="Search bots" defaultValue={one(params, "q")} hidden={params} />
 
             <OpenFacet
-              title={t("bots.facet.tag")}
+              title="Tag"
               first
-              options={tagCounts.map((x) => ({ value: x.value, label: x.value, count: x.count }))}
+              options={tagCounts.map((t) => ({ value: t.value, label: t.value, count: t.count }))}
               paramKey="tag"
-              basePath={base}
-              params={query}
-              filterPlaceholder={t("facet.filter_tags")}
-              showAll={one(query, "tag_all") === "1"}
-              note={t("bots.facet.tag_note")}
-              t={t}
+              basePath={BASE}
+              params={params}
+              filterPlaceholder="Filter tags"
+              showAll={one(params, "tag_all") === "1"}
+              note="Bots pick their own tags when they publish, so this list is as messy or as tidy as their authors are."
             />
 
-            {filtered ? <ResetFilters href={base} t={t} /> : null}
+            {filtered ? <ResetFilters href={BASE} /> : null}
           </>
         }
       >
         <div className="flex items-baseline gap-2.5">
           <span className="font-mono text-[13px] text-text">{bots.length}</span>
           <span className="text-[13px] text-text-faint">
-            {filtered
-              ? t("bots.count.matching", { total })
-              : bots.length === 1
-                ? t("bots.count_one")
-                : t("bots.count_other")}
+            {filtered ? `of ${total} bots match` : bots.length === 1 ? "bot published" : "bots published"}
           </span>
           {filtered ? (
-            <Link href={base} className="ml-auto font-mono text-xs">
-              {t("ui.show_all")} &rarr;
+            <Link href={BASE} className="ml-auto font-mono text-xs">
+              show all &rarr;
             </Link>
           ) : null}
         </div>
 
         {bots.length === 0 ? (
-          <EmptyState title={filtered ? t("bots.empty.filtered") : t("bots.empty.none")}>
-            <Link href={filtered ? base : DOCS.bots} className="font-mono text-xs">
-              {filtered ? t("bots.empty.clear") : t("bots.empty.how")}
+          <EmptyState
+            title={
+              filtered
+                ? "No bots match those filters."
+                : "No bot has been published yet. A bot is a keypair and a webhook — nothing to approve."
+            }
+          >
+            <Link href={filtered ? BASE : DOCS.bots} className="font-mono text-xs">
+              {filtered ? "clear filters →" : "how bots work →"}
             </Link>
           </EmptyState>
         ) : (
@@ -124,7 +110,7 @@ export default async function BotsPage({
                 <div className="flex items-center gap-3">
                   <Avatar name={bot.name} size={44} />
                   <Link
-                    href={`${base}/${keyParam(bot.pubkey)}`}
+                    href={`/bots/${keyParam(bot.pubkey)}`}
                     className="min-w-0 text-base font-semibold text-text hover:text-accent"
                   >
                     {bot.name}
@@ -132,7 +118,7 @@ export default async function BotsPage({
                 </div>
 
                 <p className="line-clamp-3 text-sm leading-relaxed text-text-muted">
-                  {bot.description || t("bots.card.no_description")}
+                  {bot.description || "No description supplied."}
                 </p>
 
                 {bot.commands.length > 0 ? (
@@ -153,7 +139,7 @@ export default async function BotsPage({
                     {shortKey(bot.pubkey)}
                   </span>
                   <span className="ml-auto">
-                    <CopyButton value={bot.pubkey} label={t("bots.card.copy_key")} copiedLabel={t("ui.copied")} />
+                    <CopyButton value={bot.pubkey} label="copy key" />
                   </span>
                 </div>
               </article>
@@ -163,14 +149,17 @@ export default async function BotsPage({
 
         <div className="mt-3 flex items-center gap-6 rounded-[14px] border border-border bg-bg-sunken px-6 py-6 max-sm:flex-col max-sm:items-start">
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-lg font-semibold tracking-[-0.3px]">{t("bots.cta.title")}</h2>
-            <p className="max-w-[500px] text-sm leading-relaxed text-text-muted">{t("bots.cta.body")}</p>
+            <h2 className="text-lg font-semibold tracking-[-0.3px]">A bot is just a keypair and a webhook</h2>
+            <p className="max-w-[500px] text-sm leading-relaxed text-text-muted">
+              No approval, no token to request from us. Generate a key, answer the webhook, publish the
+              listing signed with that key.
+            </p>
           </div>
           <Link
             href={DOCS.bots}
             className="shrink-0 rounded-full border border-border-strong px-5 py-2.5 text-sm font-medium text-text transition-colors hover:border-text-muted hover:text-text sm:ml-auto"
           >
-            {t("bots.cta.button")}
+            How bots work
           </Link>
         </div>
       </RailLayout>

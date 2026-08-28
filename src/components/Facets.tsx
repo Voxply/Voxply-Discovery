@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { Dictionary } from "@/i18n";
 
 /* Filter rails, rendered on the server.
  *
@@ -204,7 +203,6 @@ export function OpenFacet({
   note,
   showAll = false,
   first = false,
-  t,
 }: {
   title: string;
   options: FacetOption[];
@@ -215,7 +213,6 @@ export function OpenFacet({
   note?: string;
   showAll?: boolean;
   first?: boolean;
-  t: Dictionary;
 }) {
   const selected = paramValues(params, paramKey);
   const filter = (params[`${paramKey}_q`] as string | undefined)?.toLowerCase();
@@ -246,7 +243,7 @@ export function OpenFacet({
                 key={value}
                 href={toggleHref(basePath, params, paramKey, value)}
                 className="inline-flex items-center gap-1.5 rounded-full bg-accent py-[3px] pr-[5px] pl-2.5 text-accent-text hover:text-accent-text"
-                aria-label={label}
+                aria-label={`Remove ${label}`}
               >
                 <span className="font-mono text-[11px] font-semibold">{label}</span>
                 <svg
@@ -285,7 +282,7 @@ export function OpenFacet({
           />
         ))}
         {visible.length === 0 ? (
-          <span className="text-[13px] text-text-faint">{t("ui.nothing_matches")}</span>
+          <span className="text-[13px] text-text-faint">Nothing matches that.</span>
         ) : null}
       </div>
 
@@ -294,7 +291,7 @@ export function OpenFacet({
           href={toggleHref(basePath, params, `${paramKey}_all`, "1")}
           className="font-mono text-xs text-text-muted hover:text-text"
         >
-          {t("ui.show_all_count", { count: options.length })} &rarr;
+          show all {options.length} &rarr;
         </Link>
       ) : null}
 
@@ -303,10 +300,10 @@ export function OpenFacet({
   );
 }
 
-export function ResetFilters({ href, t }: { href: string; t: Dictionary }) {
+export function ResetFilters({ href }: { href: string }) {
   return (
     <Link href={href} className="font-mono text-xs text-text-muted hover:text-text">
-      {t("ui.reset_filters")}
+      reset filters
     </Link>
   );
 }

@@ -81,15 +81,9 @@ Next.js (App Router) · React · TypeScript · Tailwind CSS · SQLite via
 better-sqlite3 · `@noble/ed25519` for signature verification.
 
 ```bash
-npx tsc --noEmit    # type check
-npm run lint        # eslint
-npm run check-i18n  # every locale defines every key
+npx tsc --noEmit   # type check
+npm run lint       # eslint
 ```
-
-The site is translated. Pages live under `/<locale>/…` and a request without
-one is redirected to whatever `Accept-Language` asked for, falling back to
-English. Strings are in `src/i18n/locales/`; adding a language is a JSON file
-and a line in `src/i18n/config.ts`.
 
 ## The Wavvon project
 

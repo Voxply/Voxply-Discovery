@@ -4,8 +4,6 @@ import { hubAccessCounts, hubLanguageCounts, hubTagCounts, listHubs } from "@/li
 import { languageName } from "@/lib/facets";
 import { deepLink, DOCS, keyParam } from "@/lib/links";
 import { Avatar, EmptyState, PageIntro, Tag } from "@/components/ui";
-import { getDictionary } from "@/i18n";
-import { isLocale, type Locale } from "@/i18n/config";
 import {
   ClosedFacet,
   hasAnyFilter,
@@ -18,17 +16,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const FILTER_KEYS = ["q", "tag", "language", "access"];
+export const metadata: Metadata = {
+  title: "Hubs",
+  description: "Communities that chose to be listed. Every entry is signed by the hub itself.",
+};
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = getDictionary(isLocale(locale) ? locale : "en");
-  return { title: t("hubs.title"), description: t("hubs.intro") };
-}
+const BASE = "/hubs";
+const FILTER_KEYS = ["q", "tag", "language", "access"];
 
 function one(params: Params, key: string): string | undefined {
   const raw = params[key];
@@ -41,26 +35,20 @@ function many(params: Params, key: string): string[] {
 }
 
 export default async function HubsPage({
-  params,
   searchParams,
 }: {
-  params: Promise<{ locale: string }>;
   searchParams: Promise<Params>;
 }) {
-  const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : "en";
-  const t = getDictionary(locale);
-  const base = `/${locale}/hubs`;
-
-  const query = await searchParams;
-  const access = many(query, "access");
+  const params = await searchParams;
+  const access = many(params, "access");
   // Both boxes ticked says the same thing as neither.
-  const inviteOnly = access.length === 1 ? access[0] === "invite" : undefined;
+  const inviteOnly =
+    access.length === 1 ? access[0] === "invite" : undefined;
 
   const { hubs, total } = listHubs({
-    q: one(query, "q"),
-    tag: many(query, "tag"),
-    language: many(query, "language"),
+    q: one(params, "q"),
+    tag: many(params, "tag"),
+    language: many(params, "language"),
     inviteOnly,
   });
 
@@ -68,80 +56,84 @@ export default async function HubsPage({
   const tagCounts = hubTagCounts();
   const languageCounts = hubLanguageCounts();
   const accessCounts = hubAccessCounts();
-  const filtered = hasAnyFilter(query, FILTER_KEYS);
+  const filtered = hasAnyFilter(params, FILTER_KEYS);
 
   return (
     <>
-      <PageIntro title={t("hubs.title")}>{t("hubs.intro")}</PageIntro>
+      <PageIntro title="Hubs">
+        Communities that chose to be listed. Each entry was published and signed by the hub itself, and
+        can be pulled by it at any time. Plenty of hubs are not here at all — being listed is optional,
+        and so is this page.
+      </PageIntro>
 
       <RailLayout
         rail={
           <>
-            <SearchBox name="q" placeholder={t("hubs.search")} defaultValue={one(query, "q")} hidden={query} />
+            <SearchBox name="q" placeholder="Search hubs" defaultValue={one(params, "q")} hidden={params} />
 
             <OpenFacet
-              title={t("hubs.facet.tag")}
+              title="Tag"
               first
-              options={tagCounts.map((x) => ({ value: x.value, label: x.value, count: x.count }))}
+              options={tagCounts.map((t) => ({ value: t.value, label: t.value, count: t.count }))}
               paramKey="tag"
-              basePath={base}
-              params={query}
-              filterPlaceholder={t("facet.filter_tags")}
-              showAll={one(query, "tag_all") === "1"}
-              t={t}
+              basePath={BASE}
+              params={params}
+              filterPlaceholder="Filter tags"
+              showAll={one(params, "tag_all") === "1"}
             />
 
             <OpenFacet
-              title={t("hubs.facet.language")}
-              options={languageCounts.map((x) => ({
-                value: x.value,
-                label: languageName(x.value),
-                count: x.count,
+              title="Language"
+              options={languageCounts.map((l) => ({
+                value: l.value,
+                label: languageName(l.value),
+                count: l.count,
               }))}
               paramKey="language"
-              basePath={base}
-              params={query}
-              filterPlaceholder={t("facet.filter_languages")}
-              showAll={one(query, "language_all") === "1"}
-              note={t("hubs.facet.language_note")}
-              t={t}
+              basePath={BASE}
+              params={params}
+              filterPlaceholder="Filter languages"
+              showAll={one(params, "language_all") === "1"}
+              note="Whatever the listed hubs speak. The list is not a menu we curate — it grows as hubs arrive."
             />
 
             <ClosedFacet
-              title={t("hubs.facet.access")}
+              title="Getting in"
               options={[
-                { value: "open", label: t("hubs.access.open"), count: accessCounts.open },
-                { value: "invite", label: t("hubs.access.invite"), count: accessCounts.invite },
+                { value: "open", label: "Open to anyone", count: accessCounts.open },
+                { value: "invite", label: "Invite only", count: accessCounts.invite },
               ]}
               paramKey="access"
-              basePath={base}
-              params={query}
+              basePath={BASE}
+              params={params}
             />
 
-            {filtered ? <ResetFilters href={base} t={t} /> : null}
+            {filtered ? <ResetFilters href={BASE} /> : null}
           </>
         }
       >
         <div className="flex items-baseline gap-2.5">
           <span className="font-mono text-[13px] text-text">{total}</span>
           <span className="text-[13px] text-text-faint">
-            {filtered
-              ? t("hubs.count.matching", { total: allHubs })
-              : total === 1
-                ? t("hubs.count.listed_one")
-                : t("hubs.count.listed_other")}
+            {filtered ? `of ${allHubs} hubs match` : total === 1 ? "hub listed" : "hubs listed"}
           </span>
           {filtered ? (
-            <Link href={base} className="ml-auto font-mono text-xs">
-              {t("ui.show_all")} &rarr;
+            <Link href={BASE} className="ml-auto font-mono text-xs">
+              show all &rarr;
             </Link>
           ) : null}
         </div>
 
         {hubs.length === 0 ? (
-          <EmptyState title={filtered ? t("hubs.empty.filtered") : t("hubs.empty.none")}>
-            <Link href={filtered ? base : DOCS.operatorGuide} className="font-mono text-xs">
-              {filtered ? t("hubs.empty.clear") : t("hubs.empty.run")}
+          <EmptyState
+            title={
+              filtered
+                ? "No hubs match those filters yet."
+                : "Nobody has listed a hub here yet. Hubs publish themselves, so this fills up on its own."
+            }
+          >
+            <Link href={filtered ? BASE : DOCS.operatorGuide} className="font-mono text-xs">
+              {filtered ? "clear filters →" : "run your own hub →"}
             </Link>
           </EmptyState>
         ) : (
@@ -154,14 +146,14 @@ export default async function HubsPage({
                 <div className="flex items-center gap-3">
                   <Avatar name={hub.name} icon={hub.icon} accent />
                   <Link
-                    href={`${base}/${keyParam(hub.hub_pubkey)}`}
+                    href={`/hubs/${keyParam(hub.hub_pubkey)}`}
                     className="min-w-0 text-base font-semibold text-text hover:text-accent"
                   >
                     {hub.name}
                   </Link>
                   {hub.invite_only ? (
                     <span
-                      title={t("hubs.access.invite")}
+                      title="Invite only"
                       className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-surface"
                     >
                       <svg
@@ -183,19 +175,22 @@ export default async function HubsPage({
                 </div>
 
                 <p className="line-clamp-3 text-sm leading-relaxed text-text-muted">
-                  {hub.bio || hub.description || t("hubs.card.no_description")}
+                  {hub.bio || hub.description || "No description supplied."}
                 </p>
 
                 {hub.tags.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
                     {hub.tags.slice(0, 3).map((tag) => (
-                      <Tag key={tag} label={tag} href={`${base}?tag=${encodeURIComponent(tag)}`} />
+                      <Tag key={tag} label={tag} href={`${BASE}?tag=${encodeURIComponent(tag)}`} />
                     ))}
                   </div>
                 ) : null}
 
-                <a href={deepLink(hub.hub_url, hub.invite_code)} className="mt-auto pt-1 font-mono text-xs">
-                  {t("hubs.card.open")}
+                <a
+                  href={deepLink(hub.hub_url, hub.invite_code)}
+                  className="mt-auto pt-1 font-mono text-xs"
+                >
+                  open in wavvon &rarr;
                 </a>
               </article>
             ))}
@@ -204,14 +199,17 @@ export default async function HubsPage({
 
         <div className="mt-3 flex items-center gap-6 rounded-[14px] border border-border bg-bg-sunken px-6 py-6 max-sm:flex-col max-sm:items-start">
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-lg font-semibold tracking-[-0.3px]">{t("hubs.cta.title")}</h2>
-            <p className="max-w-[480px] text-sm leading-relaxed text-text-muted">{t("hubs.cta.body")}</p>
+            <h2 className="text-lg font-semibold tracking-[-0.3px]">Nothing here fits?</h2>
+            <p className="max-w-[480px] text-sm leading-relaxed text-text-muted">
+              A hub is one container and a database. Run your own and it works whether or not it ever
+              appears on this page.
+            </p>
           </div>
           <Link
             href={DOCS.operatorGuide}
             className="shrink-0 rounded-full border border-border-strong px-5 py-2.5 text-sm font-medium text-text transition-colors hover:border-text-muted hover:text-text sm:ml-auto"
           >
-            {t("hubs.cta.button")}
+            Operator guide
           </Link>
         </div>
       </RailLayout>

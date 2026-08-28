@@ -2,18 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { API_REFERENCE, DOC_SECTIONS, START_HERE } from "@/lib/docs";
 import { PageIntro, SectionLabel } from "@/components/ui";
-import { getDictionary } from "@/i18n";
-import { isLocale, type Locale } from "@/i18n/config";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = getDictionary(isLocale(locale) ? locale : "en");
-  return { title: t("docs.title"), description: t("docs.intro") };
-}
+export const metadata: Metadata = {
+  title: "Docs",
+  description:
+    "Every design decision, protocol detail and operational procedure — the same documents the project works from.",
+};
 
 const SECTION_ICONS: Record<string, React.ReactNode> = {
   using: (
@@ -39,26 +33,27 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
 };
 
 /** Libraries do not exist yet. The row marks the spot and states the plan. */
-const LIBRARY_KEYS = ["docs.libraries.rust", "docs.libraries.ts"] as const;
+const LIBRARIES = [
+  "Rust — identity, envelopes, wire format",
+  "TypeScript — the same, for clients and bots",
+];
 
-export default async function DocsPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : "en";
-  const t = getDictionary(locale);
-  const base = `/${locale}/docs`;
-
+export default function DocsPage() {
   return (
     <>
-      <PageIntro title={t("docs.title")}>{t("docs.intro")}</PageIntro>
+      <PageIntro title="Docs">
+        Every design decision, protocol detail and operational procedure, written down. The same
+        documents the project works from — not a marketing rewrite of them.
+      </PageIntro>
 
-      <section className="px-12 pt-12 max-sm:px-6">
+      <section className="px-12 pt-12">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-[18px]">
-          <SectionLabel>{t("docs.start_here")}</SectionLabel>
+          <SectionLabel>Start here</SectionLabel>
           <div className="grid grid-cols-3 gap-[18px] max-md:grid-cols-1">
             {START_HERE.map((entry, i) => (
               <Link
                 key={entry.slug}
-                href={`${base}/${entry.slug}`}
+                href={`/docs/${entry.slug}`}
                 className={`flex flex-col gap-3 rounded-[14px] border bg-bg-elevated p-6 transition-colors hover:border-border-strong ${
                   i === 0 ? "border-accent-border" : "border-border"
                 }`}
@@ -82,19 +77,15 @@ export default async function DocsPage({ params }: { params: Promise<{ locale: s
                     <path d="M5 12h13M12.5 5.5 19 12l-6.5 6.5" />
                   </svg>
                 </span>
-                <span className="text-lg font-semibold tracking-[-0.3px] text-text">
-                  {t(`doc.${entry.slug}`)}
-                </span>
-                <span className="text-sm leading-relaxed text-text-muted">
-                  {t(`doc.${entry.slug}.blurb`)}
-                </span>
+                <span className="text-lg font-semibold tracking-[-0.3px] text-text">{entry.title}</span>
+                <span className="text-sm leading-relaxed text-text-muted">{entry.blurb}</span>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="flex-1 px-12 pt-12 pb-20 max-sm:px-6">
+      <section className="flex-1 px-12 pt-12 pb-20">
         <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-5 max-lg:grid-cols-1">
           {DOC_SECTIONS.map((section) => (
             <div
@@ -115,9 +106,7 @@ export default async function DocsPage({ params }: { params: Promise<{ locale: s
                 >
                   {SECTION_ICONS[section.id]}
                 </svg>
-                <h2 className="text-[19px] font-semibold tracking-[-0.3px]">
-                  {t(`docs.section.${section.id}`)}
-                </h2>
+                <h2 className="text-[19px] font-semibold tracking-[-0.3px]">{section.title}</h2>
               </div>
 
               {section.id === "building" ? (
@@ -126,7 +115,7 @@ export default async function DocsPage({ params }: { params: Promise<{ locale: s
                   rel="noreferrer"
                   className="flex items-baseline gap-2.5 border-t border-border-hairline py-2.5 text-sm text-text-dim hover:text-text"
                 >
-                  {t("docs.api_reference")}
+                  {API_REFERENCE.title}
                   <span className="ml-auto font-mono text-[11px] text-text-ghost">
                     {API_REFERENCE.filename}
                   </span>
@@ -136,10 +125,10 @@ export default async function DocsPage({ params }: { params: Promise<{ locale: s
               {section.entries.map((entry) => (
                 <Link
                   key={entry.slug}
-                  href={`${base}/${entry.slug}`}
+                  href={`/docs/${entry.slug}`}
                   className="flex items-baseline gap-2.5 border-t border-border-hairline py-2.5 text-sm text-text-dim hover:text-text"
                 >
-                  {t(`doc.${entry.slug}`)}
+                  {entry.title}
                   <span className="ml-auto font-mono text-[11px] text-text-ghost">{entry.slug}</span>
                 </Link>
               ))}
@@ -148,20 +137,21 @@ export default async function DocsPage({ params }: { params: Promise<{ locale: s
                 <>
                   <div className="flex items-center gap-2.5 pt-[18px] pb-2.5">
                     <span className="font-mono text-[11px] font-medium tracking-[1.3px] text-text-faint uppercase">
-                      {t("docs.libraries")}
+                      Libraries
                     </span>
                     <span className="h-px flex-1 bg-border-hairline" />
                   </div>
-                  {LIBRARY_KEYS.map((key) => (
-                    <div key={key} className="flex items-baseline gap-2.5 py-2.5">
-                      <span className="text-sm text-text-faint">{t(key)}</span>
+                  {LIBRARIES.map((label) => (
+                    <div key={label} className="flex items-baseline gap-2.5 py-2.5">
+                      <span className="text-sm text-text-faint">{label}</span>
                       <span className="ml-auto rounded-full border border-border px-2 py-0.5 font-mono text-[10px] tracking-[0.6px] text-text-faint uppercase">
-                        {t("docs.libraries.soon")}
+                        soon
                       </span>
                     </div>
                   ))}
                   <p className="pt-2 text-xs leading-relaxed text-text-faint">
-                    {t("docs.libraries.note")}
+                    They will live on crates.io and npm. This page will link to them rather than mirror
+                    a registry that already exists.
                   </p>
                 </>
               ) : null}
