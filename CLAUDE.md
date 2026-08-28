@@ -21,11 +21,18 @@ data/            local runtime database — gitignored, never committed
 scripts/
 ```
 
-The public surfaces are `/` (landing), `/hubs`, `/clients`, `/bots` and
-`/docs`, each with a detail page. `/new`, `/submit`, `/templates`, `/farms`
-and `/analytics` still exist but are **deliberately unlinked** — hub creation
-is undecided, and the other three have no consumer while it stays that way.
-Don't add them back to the nav without that decision.
+The public surfaces are `/` (landing), `/hubs`, `/clients`, `/bots`,
+`/providers` and `/docs`. `/analytics` and `/bots/submit` exist but are
+unlinked.
+
+**A hub is self-hosted, and there is no hub-creation flow anywhere.** The
+wizard, the bootstrap tokens and the config-template catalogue are gone: a hub
+exists because somebody ran the binary on their own server. Somebody running
+several keeps them together in a **farm** — a server-side deployment concept
+that is never named in a client. An operator who chooses to run hubs for other
+people is a **provider**, and `/providers` lists that offer. The offer is not
+the deployment, which is why the table is `providers` and not `farms`. Don't
+reintroduce a "create a hub" button.
 
 Sibling repos (you don't need them checked out):
 

@@ -27,6 +27,8 @@ Four public surfaces, plus the docs index that ties them together.
 - **Bots** (`/bots`) — published bots, added to a hub by pasting their public
   key. The detail page lists their commands and, just as usefully, the
   permissions they did *not* ask for.
+- **Providers** (`/providers`) — operators who will run a hub for you, if you
+  would rather not run one yourself. Listed offers, not endorsements.
 - **Docs** (`/docs`) — an index over
   [Wavvon-docs](https://github.com/Wavvon/Wavvon-docs), with each page rendered
   here from its markdown source.

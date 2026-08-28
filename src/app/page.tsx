@@ -175,9 +175,9 @@ export default function HomePage() {
               {
                 eyebrow: "I want to host",
                 title: "Run a hub",
-                body: "One container and a PostgreSQL database gets a community running in a couple of minutes. You keep the data, the moderation and the decisions about who belongs.",
+                body: "A hub runs on your own server: one container and a PostgreSQL database. You keep the data, the moderation and the decisions about who belongs.",
                 cta: { href: DOCS.operatorGuide, label: "Operator guide", primary: false },
-                aside: { href: DOCS.hubScaling, label: "or read the scaling notes →" },
+                aside: { href: "/providers", label: "or let somebody host it for you →" },
               },
               {
                 eyebrow: "I want to build",

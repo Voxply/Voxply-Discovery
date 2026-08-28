@@ -91,21 +91,10 @@ function migrate(db: Database.Database) {
   // by; a broken listing is reported instead.
   db.exec(`DROP TABLE IF EXISTS hub_pings;`);
 
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS templates (
-      template_id   TEXT PRIMARY KEY,
-      name          TEXT NOT NULL,
-      description   TEXT NOT NULL DEFAULT '',
-      author_pubkey TEXT NOT NULL,
-      version       TEXT NOT NULL DEFAULT '1.0.0',
-      payload       TEXT NOT NULL,
-      signature     TEXT NOT NULL,
-      tags          TEXT NOT NULL DEFAULT '[]',
-      listed_at     TEXT NOT NULL,
-      last_verified_at TEXT NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS idx_templates_author ON templates(author_pubkey);
-  `);
+  // Dropped with the hub-creation wizard. Config templates only ever had one
+  // consumer — a flow that built a hub for somebody. A hub is self-hosted now,
+  // so its channel layout is set up on the hub itself.
+  db.exec(`DROP TABLE IF EXISTS templates;`);
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS analytics_cache (
@@ -115,30 +104,28 @@ function migrate(db: Database.Database) {
     );
   `);
 
+  // Providers: operators who will run a hub for you. The old `farms` table
+  // modelled the same offer under the deployment's name — a farm is the
+  // server-side aggregate of hubs, which is not a thing this site lists.
   db.exec(`
-    CREATE TABLE IF NOT EXISTS farms (
-      farm_pubkey          TEXT PRIMARY KEY,
-      farm_url             TEXT NOT NULL UNIQUE,
-      name                 TEXT NOT NULL,
-      description          TEXT NOT NULL DEFAULT '',
-      icon                 TEXT,
-      pricing_tiers        TEXT NOT NULL DEFAULT '[]',
-      capacity_available   INTEGER NOT NULL DEFAULT 0,
-      listed_at            TEXT NOT NULL,
-      last_verified_at     TEXT NOT NULL
+    CREATE TABLE IF NOT EXISTS providers (
+      provider_pubkey   TEXT PRIMARY KEY,
+      provider_url      TEXT NOT NULL UNIQUE,
+      name              TEXT NOT NULL,
+      description       TEXT NOT NULL DEFAULT '',
+      icon              TEXT,
+      pricing_tiers     TEXT NOT NULL DEFAULT '[]',
+      accepting         INTEGER NOT NULL DEFAULT 1,
+      listed_at         TEXT NOT NULL,
+      last_verified_at  TEXT NOT NULL
     );
-    CREATE INDEX IF NOT EXISTS idx_farms_listed_at ON farms(listed_at);
+    CREATE INDEX IF NOT EXISTS idx_providers_name ON providers(name);
   `);
+  db.exec(`DROP TABLE IF EXISTS farms;`);
 
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS bootstrap_tokens (
-      token       TEXT PRIMARY KEY,
-      config      TEXT NOT NULL,
-      created_at  TEXT NOT NULL,
-      expires_at  TEXT NOT NULL,
-      used        INTEGER NOT NULL DEFAULT 0
-    );
-  `);
+  // Dropped with the hub-creation wizard: a bootstrap token was how a hub
+  // somebody else provisioned learned what it was meant to be.
+  db.exec(`DROP TABLE IF EXISTS bootstrap_tokens;`);
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS skins (
