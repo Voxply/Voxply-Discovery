@@ -86,34 +86,6 @@ function migrate(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_clients_official ON clients(official);
   `);
 
-  // Dropped with the uptime feature. A directory that probes every listed hub
-  // pays a cost that grows with the catalogue and buys a number nobody browses
-  // by; a broken listing is reported instead.
-  db.exec(`DROP TABLE IF EXISTS hub_pings;`);
-
-  // Dropped with the hub-creation wizard. Config templates only ever had one
-  // consumer — a flow that built a hub for somebody. A hub is self-hosted now,
-  // so its channel layout is set up on the hub itself.
-  db.exec(`DROP TABLE IF EXISTS templates;`);
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS analytics_cache (
-      key         TEXT PRIMARY KEY,
-      value       TEXT NOT NULL,
-      computed_at TEXT NOT NULL
-    );
-  `);
-
-  // Hosting providers are a curated list of websites, not a registry anyone
-  // publishes to — they live in src/data/providers.json. The tables that once
-  // modelled them go.
-  db.exec(`DROP TABLE IF EXISTS providers;`);
-  db.exec(`DROP TABLE IF EXISTS farms;`);
-
-  // Dropped with the hub-creation wizard: a bootstrap token was how a hub
-  // somebody else provisioned learned what it was meant to be.
-  db.exec(`DROP TABLE IF EXISTS bootstrap_tokens;`);
-
   db.exec(`
     CREATE TABLE IF NOT EXISTS skins (
       id             TEXT PRIMARY KEY,

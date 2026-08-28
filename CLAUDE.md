@@ -22,8 +22,8 @@ scripts/
 ```
 
 The public surfaces are `/` (landing), `/hubs`, `/clients`, `/bots`,
-`/providers` and `/docs`. `/analytics` and `/bots/submit` exist but are
-unlinked.
+`/providers` and `/docs`. Nothing else exists: no route is unreachable, and
+none should be.
 
 **A hub is self-hosted, and there is no hub-creation flow anywhere.** The
 wizard, the bootstrap tokens and the config-template catalogue are gone: a hub
@@ -70,14 +70,29 @@ npm run test         # vitest
 `node_modules/next/dist/docs/` before writing Next.js-specific code rather than
 relying on recalled patterns from 13/14/15.
 
+**Nothing has been released, so there is no schema to preserve.** `migrate()`
+creates what the site needs and nothing else — no `DROP TABLE IF EXISTS` to
+converge an old dev database, because deleting `data/discovery.db` is the
+supported way to converge one. Add compatibility shims when there is something
+in the field to be compatible with.
+
 **SQLite here is correct.** The hub server is PostgreSQL-only, but that rule is
 about the hub. This site keeps its own small local catalog and `better-sqlite3`
 is the deliberate choice — don't "align" it with the server.
 
-**Listings are signed data from strangers.** Farms publish signed self-listings;
-the site verifies signatures before trusting anything. Treat every field of a
-listing as untrusted input for display purposes — it is written by whoever runs
-that hub.
+**Every listing is signed, without exception.** A hub signs its own with the
+hub key; a client author and a skin author sign theirs; a bot signs its own
+with the bot key. `src/lib/signed-listing.ts` is the one place that verifies.
+Deletion is proved the same way — a signature over the id — so nobody, this
+directory included, can remove somebody else's listing.
+
+Bots were the exception until 2026-08-28, and it was a hole rather than a
+design: `POST /api/bots` believed whatever `pubkey` the body named, `PUT`
+overwrote on the same terms, and `DELETE` took no credential at all. If a new
+listing type appears, it signs.
+
+Treat every field of a verified listing as untrusted input for display anyway.
+A valid signature proves who wrote it, not that any of it is true.
 
 **Federated, not centralized.** Don't add features that make hubs or clients
 *need* this site to function.
