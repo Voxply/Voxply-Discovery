@@ -30,9 +30,15 @@ wizard, the bootstrap tokens and the config-template catalogue are gone: a hub
 exists because somebody ran the binary on their own server. Somebody running
 several keeps them together in a **farm** — a server-side deployment concept
 that is never named in a client. An operator who chooses to run hubs for other
-people is a **provider**, and `/providers` lists that offer. The offer is not
-the deployment, which is why the table is `providers` and not `farms`. Don't
-reintroduce a "create a hub" button.
+people is a **provider**, and `/providers` lists that offer. Don't reintroduce
+a "create a hub" button.
+
+**Providers are curated, not published.** `src/data/providers.json` is a
+hand-edited file — no table, no API, no signature — because nothing in it is
+written by a stranger. That is the deliberate difference from hubs, clients and
+bots, which self-publish and are signed: those are things in the network
+describing themselves, while this is an editorial page about businesses.
+Somebody running their own directory curates their own file.
 
 Sibling repos (you don't need them checked out):
 

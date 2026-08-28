@@ -104,23 +104,10 @@ function migrate(db: Database.Database) {
     );
   `);
 
-  // Providers: operators who will run a hub for you. The old `farms` table
-  // modelled the same offer under the deployment's name — a farm is the
-  // server-side aggregate of hubs, which is not a thing this site lists.
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS providers (
-      provider_pubkey   TEXT PRIMARY KEY,
-      provider_url      TEXT NOT NULL UNIQUE,
-      name              TEXT NOT NULL,
-      description       TEXT NOT NULL DEFAULT '',
-      icon              TEXT,
-      pricing_tiers     TEXT NOT NULL DEFAULT '[]',
-      accepting         INTEGER NOT NULL DEFAULT 1,
-      listed_at         TEXT NOT NULL,
-      last_verified_at  TEXT NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS idx_providers_name ON providers(name);
-  `);
+  // Hosting providers are a curated list of websites, not a registry anyone
+  // publishes to — they live in src/data/providers.json. The tables that once
+  // modelled them go.
+  db.exec(`DROP TABLE IF EXISTS providers;`);
   db.exec(`DROP TABLE IF EXISTS farms;`);
 
   // Dropped with the hub-creation wizard: a bootstrap token was how a hub

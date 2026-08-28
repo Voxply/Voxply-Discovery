@@ -1,93 +1,60 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import Database from "better-sqlite3";
-import { getDb, initDb } from "../db";
-import { countProviders, getProvider, listProviders, removeProvider, upsertProvider } from "../providers-db";
+import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { listProviders, validateProvider } from "../providers";
 
-beforeEach(() => {
-  initDb(new Database(":memory:"));
+/* The provider list is a hand-edited file, which is the whole point — and also
+ * the risk. These guard the shape rather than the contents. */
+
+describe("providers.json", () => {
+  const raw: unknown = JSON.parse(readFileSync("src/data/providers.json", "utf8"));
+
+  it("is a list", () => {
+    expect(Array.isArray(raw)).toBe(true);
+  });
+
+  it("has no malformed entry", () => {
+    const problems = (raw as unknown[])
+      .map((entry, i) => validateProvider(entry, i))
+      .filter((p): p is string => p !== null);
+    expect(problems).toEqual([]);
+  });
+
+  it("lists each site once", () => {
+    const urls = listProviders().map((p) => p.url);
+    expect(new Set(urls).size).toBe(urls.length);
+  });
 });
 
-function seed() {
-  upsertProvider({
-    provider_pubkey: "ed25519:aaaa",
-    provider_url: "https://free.example",
-    name: "Freehold",
-    description: "A free tier and not much else.",
-    pricing_tiers: [{ name: "Free", price_cents: 0, max_members: 50 }],
-  });
-  upsertProvider({
-    provider_pubkey: "ed25519:bbbb",
-    provider_url: "https://paid.example",
-    name: "Bigiron",
-    description: "Paid only.",
-    pricing_tiers: [{ name: "Standard", price_cents: 900 }],
-  });
-  upsertProvider({
-    provider_pubkey: "ed25519:cccc",
-    provider_url: "https://full.example",
-    name: "Closedshop",
-    description: "Out of room.",
-    pricing_tiers: [{ name: "free", price_cents: 0 }],
-    accepting: false,
-  });
-}
+describe("validateProvider", () => {
+  const ok = { name: "Freehold", url: "https://free.example", description: "Hosting." };
 
-describe("providers", () => {
-  it("finds a free tier by price and by name", () => {
-    seed();
-    // "Free" priced at zero and a tier merely called "free" both count — the
-    // listing is written by the operator, not by a form we control.
-    expect(listProviders({ freeTier: true }).map((p) => p.name).sort()).toEqual([
-      "Closedshop",
-      "Freehold",
-    ]);
+  it("accepts a well-formed entry", () => {
+    expect(validateProvider(ok, 0)).toBeNull();
   });
 
-  it("separates having room from having a free tier", () => {
-    seed();
-    expect(listProviders({ accepting: true }).map((p) => p.name).sort()).toEqual([
-      "Bigiron",
-      "Freehold",
-    ]);
-    expect(listProviders({ freeTier: true, accepting: true }).map((p) => p.name)).toEqual(["Freehold"]);
+  it("insists on https", () => {
+    // These are outbound links to businesses asking for money; http is not it.
+    expect(validateProvider({ ...ok, url: "http://free.example" }, 0)).toMatch(/https/);
+    expect(validateProvider({ ...ok, url: "free.example" }, 0)).toMatch(/https/);
   });
 
-  it("defaults a provider to accepting", () => {
-    upsertProvider({ provider_pubkey: "k", provider_url: "https://x.example", name: "X" });
-    expect(getProvider("k")?.accepting).toBe(true);
+  it("insists on a name and a description", () => {
+    expect(validateProvider({ ...ok, name: "  " }, 0)).toMatch(/no name/);
+    expect(validateProvider({ ...ok, description: "" }, 0)).toMatch(/description/);
   });
 
-  it("updates in place rather than duplicating", () => {
-    seed();
-    upsertProvider({
-      provider_pubkey: "ed25519:aaaa",
-      provider_url: "https://free.example",
-      name: "Freehold Hosting",
-    });
-    expect(countProviders()).toBe(3);
-    expect(getProvider("ed25519:aaaa")?.name).toBe("Freehold Hosting");
+  it("rejects a non-object row", () => {
+    expect(validateProvider("https://free.example", 3)).toMatch(/entry 3/);
+  });
+});
+
+describe("listProviders", () => {
+  it("drops a malformed row instead of failing the page", () => {
+    // The file is edited by hand; one typo should not blank the page.
+    expect(() => listProviders()).not.toThrow();
   });
 
-  it("ignores a malformed pricing_tiers payload instead of throwing", () => {
-    // Written by whoever runs the provider, so it can be anything at all.
-    const db = getDb();
-    const now = new Date().toISOString();
-    db.prepare(
-      `INSERT INTO providers (provider_pubkey, provider_url, name, description, icon,
-         pricing_tiers, accepting, listed_at, last_verified_at)
-       VALUES (?,?,?,?,?,?,?,?,?)`
-    ).run("k", "https://x.example", "Broken", "", null, "{not json", 1, now, now);
-
-    const [provider] = listProviders();
-    expect(provider.name).toBe("Broken");
-    expect(provider.pricing_tiers).toEqual([]);
-    expect(listProviders({ freeTier: true })).toEqual([]);
-  });
-
-  it("removes a provider", () => {
-    seed();
-    expect(removeProvider("ed25519:bbbb")).toBe(true);
-    expect(removeProvider("ed25519:bbbb")).toBe(false);
-    expect(countProviders()).toBe(2);
+  it("filters to free tiers", () => {
+    expect(listProviders({ freeTier: true }).every((p) => p.freeTier)).toBe(true);
   });
 });
