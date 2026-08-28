@@ -64,15 +64,32 @@ function migrate(db: Database.Database) {
 
   `);
 
+  // Client listings. Like skins, the signed document is kept whole in
+  // `payload` and only the fields the browse page filters on are columns —
+  // so a new field in the format costs no migration here.
   db.exec(`
-    CREATE TABLE IF NOT EXISTS hub_pings (
-      hub_pubkey TEXT NOT NULL REFERENCES hubs(hub_pubkey) ON DELETE CASCADE,
-      checked_at TEXT NOT NULL,
-      success INTEGER NOT NULL DEFAULT 0
+    CREATE TABLE IF NOT EXISTS clients (
+      id            TEXT PRIMARY KEY,
+      author_pubkey TEXT NOT NULL,
+      name          TEXT NOT NULL,
+      tagline       TEXT NOT NULL DEFAULT '',
+      maintainer    TEXT NOT NULL DEFAULT '',
+      official      INTEGER NOT NULL DEFAULT 0,
+      platforms     TEXT NOT NULL DEFAULT '[]',
+      languages     TEXT NOT NULL DEFAULT '[]',
+      features      TEXT NOT NULL DEFAULT '[]',
+      payload       TEXT NOT NULL,
+      listed_at     TEXT NOT NULL,
+      updated_at    TEXT NOT NULL
     );
-    CREATE INDEX IF NOT EXISTS idx_pings_hub ON hub_pings(hub_pubkey);
-    CREATE INDEX IF NOT EXISTS idx_pings_checked ON hub_pings(checked_at);
+    CREATE INDEX IF NOT EXISTS idx_clients_author ON clients(author_pubkey);
+    CREATE INDEX IF NOT EXISTS idx_clients_official ON clients(official);
   `);
+
+  // Dropped with the uptime feature. A directory that probes every listed hub
+  // pays a cost that grows with the catalogue and buys a number nobody browses
+  // by; a broken listing is reported instead.
+  db.exec(`DROP TABLE IF EXISTS hub_pings;`);
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS templates (
@@ -169,7 +186,9 @@ function rowToListing(row: HubRow): HubListing {
 export interface ListOptions {
   q?: string;
   tag?: string | string[];
-  language?: string;
+  language?: string | string[];
+  /** Undefined means both; true or false narrows to one. */
+  inviteOnly?: boolean;
   page?: number;
 }
 
@@ -186,9 +205,16 @@ export function listHubs(opts: ListOptions = {}): { hubs: HubListing[]; total: n
     conditions.push("(name LIKE ? OR bio LIKE ?)");
     params.push(`%${opts.q}%`, `%${opts.q}%`);
   }
-  if (opts.language) {
-    conditions.push("language = ?");
-    params.push(opts.language);
+  // Several languages read as "any of these"; several tags read as "all of
+  // these". Different because a hub speaks one language but carries many tags.
+  const languages = opts.language ? (Array.isArray(opts.language) ? opts.language : [opts.language]) : [];
+  if (languages.length > 0) {
+    conditions.push(`language IN (${languages.map(() => "?").join(", ")})`);
+    params.push(...languages);
+  }
+  if (opts.inviteOnly !== undefined) {
+    conditions.push("invite_only = ?");
+    params.push(opts.inviteOnly ? 1 : 0);
   }
 
   const tags = opts.tag ? (Array.isArray(opts.tag) ? opts.tag : [opts.tag]) : [];
@@ -206,9 +232,19 @@ export function listHubs(opts: ListOptions = {}): { hubs: HubListing[]; total: n
   return { hubs: rows.map(rowToListing), total: count };
 }
 
+/* Keys are stored as `ed25519:<hex>` but URLs carry the hex alone, because a
+ * colon in a path segment does not survive the router. Both forms resolve. */
+function keyVariants(pubkey: string): [string, string] {
+  const hex = pubkey.startsWith("ed25519:") ? pubkey.slice(8) : pubkey;
+  return [pubkey, pubkey === hex ? `ed25519:${hex}` : hex];
+}
+
 export function getHub(pubkey: string): HubListing | null {
   const db = getDb();
-  const row = db.prepare("SELECT * FROM hubs WHERE hub_pubkey = ?").get(pubkey) as HubRow | undefined;
+  const [given, other] = keyVariants(pubkey);
+  const row = db
+    .prepare("SELECT * FROM hubs WHERE hub_pubkey = ? OR hub_pubkey = ?")
+    .get(given, other) as HubRow | undefined;
   return row ? rowToListing(row) : null;
 }
 
@@ -282,7 +318,7 @@ function botRowToListing(row: BotRow): BotListing {
   };
 }
 
-export function listBots(opts: { search?: string; tag?: string } = {}): BotListing[] {
+export function listBots(opts: { search?: string; tag?: string | string[] } = {}): BotListing[] {
   const db = getDb();
   const conditions: string[] = [];
   const params: unknown[] = [];
@@ -298,8 +334,9 @@ export function listBots(opts: { search?: string; tag?: string } = {}): BotListi
 
   let bots = rows.map(botRowToListing);
 
-  if (opts.tag) {
-    bots = bots.filter((b) => b.tags.includes(opts.tag!));
+  const wanted = opts.tag ? (Array.isArray(opts.tag) ? opts.tag : [opts.tag]) : [];
+  if (wanted.length > 0) {
+    bots = bots.filter((b) => wanted.every((t) => b.tags.includes(t)));
   }
 
   return bots;
@@ -307,7 +344,10 @@ export function listBots(opts: { search?: string; tag?: string } = {}): BotListi
 
 export function getBot(pubkey: string): BotListing | undefined {
   const db = getDb();
-  const row = db.prepare("SELECT * FROM bots WHERE pubkey = ?").get(pubkey) as BotRow | undefined;
+  const [given, other] = keyVariants(pubkey);
+  const row = db
+    .prepare("SELECT * FROM bots WHERE pubkey = ? OR pubkey = ?")
+    .get(given, other) as BotRow | undefined;
   return row ? botRowToListing(row) : undefined;
 }
 
@@ -436,4 +476,48 @@ export function listSkins(opts: ListSkinsOptions = {}): { skins: SkinListItem[];
     .get(params) as { count: number };
 
   return { skins: rows.map(skinRowToListItem), total: count };
+}
+
+/* Facet counts for the hub rail.
+ *
+ * Tags and languages are open sets — whatever hubs declare — so the rail is
+ * built from the data rather than from a list kept in the code. */
+
+export function hubTagCounts(): Array<{ value: string; count: number }> {
+  return getDb()
+    .prepare(
+      `SELECT json_each.value AS value, COUNT(*) AS count
+         FROM hubs, json_each(hubs.tags)
+        GROUP BY value ORDER BY count DESC, value`
+    )
+    .all() as Array<{ value: string; count: number }>;
+}
+
+export function hubLanguageCounts(): Array<{ value: string; count: number }> {
+  return getDb()
+    .prepare(
+      `SELECT language AS value, COUNT(*) AS count
+         FROM hubs GROUP BY language ORDER BY count DESC, value`
+    )
+    .all() as Array<{ value: string; count: number }>;
+}
+
+export function hubAccessCounts(): { open: number; invite: number } {
+  const rows = getDb()
+    .prepare("SELECT invite_only, COUNT(*) AS n FROM hubs GROUP BY invite_only")
+    .all() as Array<{ invite_only: number; n: number }>;
+  return {
+    open: rows.find((r) => r.invite_only === 0)?.n ?? 0,
+    invite: rows.find((r) => r.invite_only === 1)?.n ?? 0,
+  };
+}
+
+export function botTagCounts(): Array<{ value: string; count: number }> {
+  return getDb()
+    .prepare(
+      `SELECT json_each.value AS value, COUNT(*) AS count
+         FROM bots, json_each(bots.tags)
+        GROUP BY value ORDER BY count DESC, value`
+    )
+    .all() as Array<{ value: string; count: number }>;
 }

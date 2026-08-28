@@ -32,7 +32,6 @@ export default function AnalyticsPage() {
       {/* Key stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         <StatCard label="Total hubs" value={data.total_hubs} />
-        <StatCard label="Active hubs (7d)" value={data.active_hubs} />
         <StatCard label="Bots" value={data.total_bots} />
         <StatCard label="Games" value={data.total_games} />
       </div>

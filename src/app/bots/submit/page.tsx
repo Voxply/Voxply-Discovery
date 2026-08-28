@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { BotCommand } from "@/lib/types";
 
@@ -107,9 +108,9 @@ export default function BotSubmitPage() {
   if (status === "ok") {
     return (
       <div className="max-w-xl mx-auto px-6 py-10">
-        <a href="/bots" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
+        <Link href="/bots" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
           ← Back to bots
-        </a>
+        </Link>
         <div className="p-6 bg-neutral-900 border border-neutral-700 rounded-xl">
           <h1 className="text-xl font-bold mb-2">Bot listed!</h1>
           <p className="text-neutral-400 text-sm mb-4">
@@ -131,9 +132,9 @@ export default function BotSubmitPage() {
 
   return (
     <div className="max-w-xl mx-auto px-6 py-10">
-      <a href="/bots" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
+      <Link href="/bots" className="text-sm text-neutral-500 hover:text-neutral-300 mb-6 inline-block">
         ← Back to bots
-      </a>
+      </Link>
       <h1 className="text-2xl font-bold mb-2">List your bot</h1>
       <p className="text-neutral-400 mb-8 text-sm">
         Add your bot to the community directory. Hub operators can invite it using its public key.

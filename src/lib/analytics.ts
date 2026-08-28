@@ -2,7 +2,6 @@ import { getDb } from "./db";
 
 export interface AnalyticsData {
   total_hubs: number;
-  active_hubs: number;
   total_bots: number;
   total_games: number;
   top_tags: Array<{ tag: string; count: number }>;
@@ -14,17 +13,6 @@ export function computeAnalytics(): AnalyticsData {
   const db = getDb();
   const total_hubs = (db.prepare("SELECT COUNT(*) as n FROM hubs").get() as { n: number }).n;
   const total_bots = (db.prepare("SELECT COUNT(*) as n FROM bots").get() as { n: number }).n ?? 0;
-
-  // Active hubs: had at least one successful ping in last 7 days
-  const sevenDaysAgo = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
-  const active_hubs =
-    (
-      db
-        .prepare(
-          "SELECT COUNT(DISTINCT hub_pubkey) as n FROM hub_pings WHERE success = 1 AND checked_at >= ?"
-        )
-        .get(sevenDaysAgo) as { n: number }
-    ).n ?? 0;
 
   // Top tags — parsed from each hub's JSON tags array
   const all_tags = db
@@ -63,7 +51,6 @@ export function computeAnalytics(): AnalyticsData {
 
   return {
     total_hubs,
-    active_hubs,
     total_bots,
     total_games,
     top_tags,
