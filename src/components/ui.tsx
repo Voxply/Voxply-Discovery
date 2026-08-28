@@ -176,7 +176,7 @@ export function Note({
   );
 }
 
-export function VerifiedBadge({ label = "Signature verified" }: { label?: string }) {
+export function VerifiedBadge({ label }: { label: string }) {
   return (
     <span className="flex items-center gap-2 rounded border border-success-border bg-success-bg px-2.5 py-2">
       <svg

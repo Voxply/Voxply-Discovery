@@ -1,16 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { clientFacetCounts, countClients, listClients } from "@/lib/clients-db";
-import {
-  CLIENT_PLATFORMS,
-  FEATURE_LABELS,
-  FILTERABLE_FEATURES,
-  PLATFORM_LABELS,
-  languageName,
-  type ClientPlatform,
-} from "@/lib/facets";
+import { CLIENT_PLATFORMS, FILTERABLE_FEATURES, languageName } from "@/lib/facets";
 import { DOCS } from "@/lib/links";
 import { Avatar, Chip, EmptyState, PageIntro } from "@/components/ui";
+import { getDictionary } from "@/i18n";
+import { isLocale, type Locale } from "@/i18n/config";
 import {
   ClosedFacet,
   hasAnyFilter,
@@ -23,14 +18,17 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Clients",
-  description:
-    "Anything that speaks the protocol is a client, and the protocol is documented — so anyone can write one.",
-};
-
-const BASE = "/clients";
 const FILTER_KEYS = ["q", "platform", "language", "feature", "publisher"];
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = getDictionary(isLocale(locale) ? locale : "en");
+  return { title: t("clients.title"), description: t("clients.intro") };
+}
 
 function one(params: Params, key: string): string | undefined {
   const raw = params[key];
@@ -42,7 +40,7 @@ function many(params: Params, key: string): string[] {
   return raw === undefined ? [] : Array.isArray(raw) ? raw : [raw];
 }
 
-function LanguageLine({ tags }: { tags: string[] }) {
+function LanguageLine({ tags, only }: { tags: string[]; only: (lang: string) => string }) {
   return (
     <div className="flex items-center gap-2 border-t border-border-hairline pt-2.5">
       <svg
@@ -62,27 +60,34 @@ function LanguageLine({ tags }: { tags: string[] }) {
       </svg>
       <span className="font-mono text-[11px] text-text-muted">
         {tags.length === 1
-          ? `${tags[0].toUpperCase()} only`
-          : tags.map((t) => t.toUpperCase()).join(" · ")}
+          ? only(tags[0].toUpperCase())
+          : tags.map((x) => x.toUpperCase()).join(" · ")}
       </span>
     </div>
   );
 }
 
 export default async function ClientsPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<Params>;
 }) {
-  const params = await searchParams;
-  const publisher = many(params, "publisher");
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : "en";
+  const t = getDictionary(locale);
+  const base = `/${locale}/clients`;
+
+  const query = await searchParams;
+  const publisher = many(query, "publisher");
   const official = publisher.length === 1 ? publisher[0] === "official" : undefined;
 
   const clients = listClients({
-    q: one(params, "q"),
-    platform: many(params, "platform"),
-    language: many(params, "language"),
-    feature: many(params, "feature"),
+    q: one(query, "q"),
+    platform: many(query, "platform"),
+    language: many(query, "language"),
+    feature: many(query, "feature"),
     official,
   });
 
@@ -91,106 +96,105 @@ export default async function ClientsPage({
   const languageCounts = clientFacetCounts("languages");
   const featureCounts = clientFacetCounts("features");
   const officialCount = listClients({ official: true }).length;
-  const filtered = hasAnyFilter(params, FILTER_KEYS);
+  const filtered = hasAnyFilter(query, FILTER_KEYS);
 
   const countOf = (rows: Array<{ value: string; count: number }>, value: string) =>
     rows.find((r) => r.value === value)?.count ?? 0;
 
   return (
     <>
-      <PageIntro title="Clients">
-        A client is anything that speaks the protocol, and the protocol is plain HTTP and WebSocket — so
-        anyone can write one, in any language, with whatever taste they have. These are the ones people
-        published. Your key and your hubs come with you whichever you pick.
-      </PageIntro>
+      <PageIntro title={t("clients.title")}>{t("clients.intro")}</PageIntro>
 
       <RailLayout
         rail={
           <>
             <SearchBox
               name="q"
-              placeholder="Search clients"
-              defaultValue={one(params, "q")}
-              hidden={params}
+              placeholder={t("clients.search")}
+              defaultValue={one(query, "q")}
+              hidden={query}
             />
 
             <ClosedFacet
-              title="Platform"
+              title={t("clients.facet.platform")}
               first
-              options={CLIENT_PLATFORMS.map((p: ClientPlatform) => ({
+              options={CLIENT_PLATFORMS.map((p) => ({
                 value: p,
-                label: PLATFORM_LABELS[p],
+                label: t(`platform.${p}`),
                 count: countOf(platformCounts, p),
               }))}
               paramKey="platform"
-              basePath={BASE}
-              params={params}
+              basePath={base}
+              params={query}
             />
 
             <OpenFacet
-              title="Interface language"
-              options={languageCounts.map((l) => ({
-                value: l.value,
-                label: languageName(l.value),
-                count: l.count,
+              title={t("clients.facet.language")}
+              options={languageCounts.map((x) => ({
+                value: x.value,
+                label: languageName(x.value),
+                count: x.count,
               }))}
               paramKey="language"
-              basePath={BASE}
-              params={params}
-              filterPlaceholder="Filter languages"
-              showAll={one(params, "language_all") === "1"}
-              note="This list is whatever the clients declare, so it grows on its own. Each one is translated by whoever maintains it — none covers every language, ours included."
+              basePath={base}
+              params={query}
+              filterPlaceholder={t("facet.filter_languages")}
+              showAll={one(query, "language_all") === "1"}
+              note={t("clients.facet.language_note")}
+              t={t}
             />
 
             <ClosedFacet
-              title="Supports"
-              options={FILTERABLE_FEATURES.map((f) => ({
-                value: f,
-                label: FEATURE_LABELS[f],
-                count: countOf(featureCounts, f),
+              title={t("clients.facet.supports")}
+              options={FILTERABLE_FEATURES.map((x) => ({
+                value: x,
+                label: t(`feature.${x}`),
+                count: countOf(featureCounts, x),
               }))}
               paramKey="feature"
-              basePath={BASE}
-              params={params}
+              basePath={base}
+              params={query}
             />
 
             <ClosedFacet
-              title="Published by"
+              title={t("clients.facet.publisher")}
               options={[
-                { value: "official", label: "The Wavvon project", count: officialCount },
-                { value: "community", label: "Everyone else", count: total - officialCount },
+                { value: "official", label: t("clients.publisher.official"), count: officialCount },
+                {
+                  value: "community",
+                  label: t("clients.publisher.community"),
+                  count: total - officialCount,
+                },
               ]}
               paramKey="publisher"
-              basePath={BASE}
-              params={params}
+              basePath={base}
+              params={query}
             />
 
-            {filtered ? <ResetFilters href={BASE} /> : null}
+            {filtered ? <ResetFilters href={base} t={t} /> : null}
           </>
         }
       >
         <div className="flex items-baseline gap-2.5">
           <span className="font-mono text-[13px] text-text">{clients.length}</span>
           <span className="text-[13px] text-text-faint">
-            {filtered ? `of ${total} clients match` : clients.length === 1 ? "client" : "clients"}
+            {filtered
+              ? t("clients.count.matching", { total })
+              : clients.length === 1
+                ? t("clients.count_one")
+                : t("clients.count_other")}
           </span>
           {filtered ? (
-            <Link href={BASE} className="ml-auto font-mono text-xs">
-              show all &rarr;
+            <Link href={base} className="ml-auto font-mono text-xs">
+              {t("ui.show_all")} &rarr;
             </Link>
           ) : null}
         </div>
 
         {clients.length === 0 ? (
-          <EmptyState
-            title={
-              filtered
-                ? "No clients match those filters."
-                : "No client has been listed yet. The official web client ships with every hub either way."
-            }
-          >
-            <Link href={filtered ? BASE : DOCS.openapi} className="font-mono text-xs">
-              {filtered ? "clear filters →" : "read the protocol spec →"}
+          <EmptyState title={filtered ? t("clients.empty.filtered") : t("clients.empty.none")}>
+            <Link href={filtered ? base : DOCS.openapi} className="font-mono text-xs">
+              {filtered ? t("clients.empty.clear") : t("clients.empty.spec")}
             </Link>
           </EmptyState>
         ) : (
@@ -204,7 +208,7 @@ export default async function ClientsPage({
                   <Avatar name={client.name} accent={client.official} />
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <Link
-                      href={`/clients/${client.id}`}
+                      href={`${base}/${client.id}`}
                       className="text-base font-semibold text-text hover:text-accent"
                     >
                       {client.name}
@@ -214,7 +218,9 @@ export default async function ClientsPage({
                         client.official ? "text-accent" : "text-text-faint"
                       }`}
                     >
-                      {client.official ? "official" : client.maintainer || "community"}
+                      {client.official
+                        ? t("clients.card.official")
+                        : client.maintainer || t("clients.card.community")}
                     </span>
                   </div>
                 </div>
@@ -227,7 +233,12 @@ export default async function ClientsPage({
                   ))}
                 </div>
 
-                {client.languages.length > 0 ? <LanguageLine tags={client.languages} /> : null}
+                {client.languages.length > 0 ? (
+                  <LanguageLine
+                    tags={client.languages}
+                    only={(lang) => t("clients.card.language_only", { lang })}
+                  />
+                ) : null}
               </article>
             ))}
           </div>
@@ -235,17 +246,14 @@ export default async function ClientsPage({
 
         <div className="mt-3 flex items-center gap-6 rounded-[14px] border border-border bg-bg-sunken px-6 py-6 max-sm:flex-col max-sm:items-start">
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-lg font-semibold tracking-[-0.3px]">Written one?</h2>
-            <p className="max-w-[460px] text-sm leading-relaxed text-text-muted">
-              Listings are signed with your own key, the way hubs publish themselves. Nobody approves
-              it, and only your key can change or remove it.
-            </p>
+            <h2 className="text-lg font-semibold tracking-[-0.3px]">{t("clients.cta.title")}</h2>
+            <p className="max-w-[460px] text-sm leading-relaxed text-text-muted">{t("clients.cta.body")}</p>
           </div>
           <Link
             href={DOCS.hubDiscovery}
             className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-text transition-colors hover:bg-accent-hover hover:text-accent-text sm:ml-auto"
           >
-            List your client
+            {t("clients.cta.button")}
           </Link>
         </div>
       </RailLayout>

@@ -9,84 +9,80 @@ import { DOC_RAW, GITHUB } from "./links";
 
 export interface DocEntry {
   slug: string;
-  title: string;
   /** Path inside the Wavvon-docs repo. */
   path: string;
-  blurb?: string;
 }
 
 export interface DocSection {
   id: string;
-  title: string;
   entries: DocEntry[];
 }
 
-const d = (slug: string, title: string, path = `docs/${slug}.md`): DocEntry => ({ slug, title, path });
+/* Titles are not here. A page's title is `doc.<slug>` in the dictionaries and
+ * a section's is `docs.section.<id>`, so the registry holds only what is the
+ * same in every language: which slug maps to which file. */
+
+const d = (slug: string, path = `docs/${slug}.md`): DocEntry => ({ slug, path });
 
 export const DOC_SECTIONS: DocSection[] = [
   {
     id: "using",
-    title: "Using Wavvon",
     entries: [
-      d("getting-started", "Getting started"),
-      d("client", "The client, room by room"),
-      d("browser-client", "Running it in a browser"),
-      d("identity-recovery", "Recovering a lost identity"),
-      d("data-export", "Exporting your data"),
-      d("custom-themes", "Themes and skins"),
-      d("accessibility", "Accessibility"),
+      d("getting-started"),
+      d("client"),
+      d("browser-client"),
+      d("identity-recovery"),
+      d("data-export"),
+      d("custom-themes"),
+      d("accessibility"),
     ],
   },
   {
     id: "operating",
-    title: "Running a hub",
     entries: [
-      d("hub-operator-guide", "Hub operator guide"),
-      d("hosting", "Where to host it"),
-      d("hub-operations", "Day-to-day operations"),
-      d("hub-scaling", "Scaling past one box"),
-      d("hub-admin-panel", "The admin panel"),
-      d("federation", "Federation"),
-      d("alliances", "Alliances between hubs"),
+      d("hub-operator-guide"),
+      d("hosting"),
+      d("hub-operations"),
+      d("hub-scaling"),
+      d("hub-admin-panel"),
+      d("federation"),
+      d("alliances"),
     ],
   },
   {
     id: "building",
-    title: "Building on it",
     entries: [
-      d("ws-protocol", "WebSocket protocol"),
-      d("wire-format", "Wire format and signed envelopes"),
-      d("bots", "Writing a bot"),
-      d("bot-capability-layer", "Bot capabilities and permissions"),
-      d("gaming", "The sandboxed game SDK"),
-      d("hub-discovery", "Running your own directory"),
+      d("ws-protocol"),
+      d("wire-format"),
+      d("bots"),
+      d("bot-capability-layer"),
+      d("gaming"),
+      d("hub-discovery"),
     ],
   },
   {
     id: "reference",
-    title: "Reference",
     entries: [
-      d("data-model", "Data model"),
-      d("e2e-encryption", "End-to-end encryption"),
-      d("decisions", "Design decisions, newest first"),
-      d("shipped-log", "What shipped, and when"),
-      d("roadmap", "Roadmap", "ROADMAP.md"),
-      d("glossary", "Glossary"),
+      d("data-model"),
+      d("e2e-encryption"),
+      d("decisions"),
+      d("shipped-log"),
+      d("roadmap", "ROADMAP.md"),
+      d("glossary"),
     ],
   },
 ];
 
 /** Pages worth putting in front of somebody who has just arrived. */
 export const START_HERE: DocEntry[] = [
-  { slug: "getting-started", title: "Getting started", path: "docs/getting-started.md", blurb: "Create an identity, join a hub, find your way around." },
-  { slug: "architecture", title: "Architecture", path: "docs/architecture.md", blurb: "How a hub, a client and federation fit together, and why it is shaped this way." },
-  { slug: "comparison", title: "Comparison", path: "COMPARISON.md", blurb: "Where Wavvon stands against the closed alternatives, including what it still lacks." },
+  { slug: "getting-started", path: "docs/getting-started.md" },
+  { slug: "architecture", path: "docs/architecture.md" },
+  { slug: "comparison", path: "COMPARISON.md" },
 ];
 
 /* The API reference is YAML, not prose — it belongs on the index as a link
  * out, never as a page this renderer tries to format. */
 export const API_REFERENCE = {
-  title: "HTTP API reference",
   filename: "openapi.yaml",
   href: `${GITHUB.docs}/blob/main/openapi.yaml`,
 };

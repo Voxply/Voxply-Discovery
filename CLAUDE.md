@@ -52,6 +52,27 @@ Commit to **`develop`**. See `CONTRIBUTING.md`.
 
 ---
 
+## The site is translated, and the gate is a build step
+
+Strings live in `src/i18n/locales/<locale>.json` as flat dotted keys — the same
+convention `packages/i18n` uses in the clients repo, so a translator meets one
+format across both. `npm run check-i18n` fails when a locale is missing a key
+English defines, because a gap falls back to English at runtime and shows up as
+one English sentence in the middle of an Italian page. Adding a language is a
+file plus a line in `src/i18n/config.ts`; there is no library and no provider,
+since every page here is a server component.
+
+**Nothing user-facing is a literal.** Labels for platforms, features and bot
+capabilities used to live in `facets.ts` as English maps; they are
+`platform.<key>`, `feature.<key>` and `capability.<key>` now, and the doc
+registry holds slugs and paths rather than titles. What stays untranslated is
+listing content — a hub's name and bio, a bot's command descriptions — because
+that is written by whoever published it, in whatever language they chose.
+
+**The locale list here is not the clients' list.** A directory is read by people
+deciding whether to arrive; a client is used by people who already did. The two
+can diverge, and the clients' four are not a target to match.
+
 ## Commands
 
 ```bash

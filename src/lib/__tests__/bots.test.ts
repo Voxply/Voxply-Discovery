@@ -10,10 +10,6 @@ import { validateBot } from "../../app/api/bots/route";
  * credential at all — a bare curl removed anybody's listing. These guard the
  * fix, which is the same signed-document shape hubs, clients and skins use. */
 
-function bytes(hex: string): Uint8Array {
-  return Uint8Array.from(hex.match(/../g)!.map((b) => parseInt(b, 16)));
-}
-
 function b64url(raw: Uint8Array): string {
   return Buffer.from(raw).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }

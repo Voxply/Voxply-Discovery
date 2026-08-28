@@ -1,50 +1,56 @@
 import Link from "next/link";
 import { Mark } from "./Mark";
+import { LocaleSwitcher } from "./LocaleSwitcher";
 import { DOCS, GITHUB } from "@/lib/links";
+import { getDictionary } from "@/i18n";
+import type { Locale } from "@/i18n/config";
 
-const COLUMNS = [
-  {
-    title: "Project",
-    links: [
-      { label: "About", href: DOCS.readme },
-      { label: "Architecture", href: DOCS.architecture },
-      { label: "Comparison", href: DOCS.comparison },
-      { label: "Roadmap", href: DOCS.roadmap },
-    ],
-  },
-  {
-    title: "Directory",
-    links: [
-      { label: "Hubs", href: "/hubs" },
-      { label: "Clients", href: "/clients" },
-      { label: "Bots", href: "/bots" },
-      { label: "Providers", href: "/providers" },
-      { label: "Run your own directory", href: GITHUB.discovery },
-    ],
-  },
-  {
-    title: "Build",
-    links: [
-      { label: "Protocol spec", href: DOCS.openapi },
-      { label: "Write a client", href: DOCS.client },
-      { label: "Write a bot", href: DOCS.bots },
-      { label: "Wire format", href: DOCS.wireFormat },
-    ],
-  },
-  {
-    title: "Operate",
-    links: [
-      { label: "Operator guide", href: DOCS.operatorGuide },
-      { label: "Hub scaling", href: DOCS.hubScaling },
-      { label: "Security policy", href: GITHUB.security },
-      { label: "Source on GitHub", href: GITHUB.org },
-    ],
-  },
-] as const;
+export function SiteFooter({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
+  const home = `/${locale}`;
 
-export function SiteFooter() {
+  const columns = [
+    {
+      title: t("footer.col.project"),
+      links: [
+        { label: t("footer.about"), href: DOCS.readme },
+        { label: t("footer.architecture"), href: DOCS.architecture },
+        { label: t("footer.comparison"), href: DOCS.comparison },
+        { label: t("footer.roadmap"), href: DOCS.roadmap },
+      ],
+    },
+    {
+      title: t("footer.col.directory"),
+      links: [
+        { label: t("nav.hubs"), href: `${home}/hubs` },
+        { label: t("nav.clients"), href: `${home}/clients` },
+        { label: t("nav.bots"), href: `${home}/bots` },
+        { label: t("nav.providers"), href: `${home}/providers` },
+        { label: t("footer.run_own_directory"), href: GITHUB.discovery },
+      ],
+    },
+    {
+      title: t("footer.col.build"),
+      links: [
+        { label: t("footer.protocol_spec"), href: DOCS.openapi },
+        { label: t("footer.write_client"), href: DOCS.client },
+        { label: t("footer.write_bot"), href: DOCS.bots },
+        { label: t("footer.wire_format"), href: DOCS.wireFormat },
+      ],
+    },
+    {
+      title: t("footer.col.operate"),
+      links: [
+        { label: t("footer.operator_guide"), href: DOCS.operatorGuide },
+        { label: t("footer.hub_scaling"), href: DOCS.hubScaling },
+        { label: t("footer.security_policy"), href: GITHUB.security },
+        { label: t("footer.source"), href: GITHUB.org },
+      ],
+    },
+  ];
+
   return (
-    <footer className="mt-auto border-t border-border bg-bg-sunken px-12 pt-14 pb-8">
+    <footer className="mt-auto border-t border-border bg-bg-sunken px-12 pt-14 pb-8 max-sm:px-6">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-11">
         <div className="grid grid-cols-[1.6fr_repeat(4,minmax(0,1fr))] gap-8 max-lg:grid-cols-2 max-sm:grid-cols-1">
           <div className="flex flex-col gap-3.5">
@@ -53,11 +59,11 @@ export function SiteFooter() {
               <span className="font-mono text-base font-bold tracking-[0.5px] text-text">wavvon</span>
             </div>
             <p className="max-w-[260px] text-[13px] leading-relaxed text-text-faint">
-              Built for players. Owned by no one.
+              {t("footer.tagline")}
             </p>
           </div>
 
-          {COLUMNS.map((column) => (
+          {columns.map((column) => (
             <div key={column.title} className="flex flex-col gap-3">
               <span className="font-mono text-[11px] font-medium tracking-[1.4px] text-text-faint uppercase">
                 {column.title}
@@ -75,11 +81,10 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex items-center gap-6 border-t border-border pt-7 max-sm:flex-col max-sm:items-start max-sm:gap-2">
-          <span className="font-mono text-xs text-text-ghost">AGPL-3.0</span>
-          <span className="font-mono text-xs text-text-ghost sm:ml-auto">
-            This directory is optional. Wavvon works without it.
-          </span>
+        <div className="flex items-center gap-6 border-t border-border pt-7 max-sm:flex-col max-sm:items-start max-sm:gap-3">
+          <span className="font-mono text-xs text-text-ghost">{t("footer.licence")}</span>
+          <LocaleSwitcher locale={locale} label={t("footer.language")} />
+          <span className="font-mono text-xs text-text-ghost sm:ml-auto">{t("footer.optional")}</span>
         </div>
       </div>
     </footer>
