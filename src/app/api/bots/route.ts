@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listBots, upsertBot } from "@/lib/db";
 import { verifyListingSignature } from "@/lib/signed-listing";
+import { isBotCapability } from "@/lib/facets";
 import type { BotCommand, BotListingInput } from "@/lib/types";
 
 const MAX_PAYLOAD_BYTES = 16384;
@@ -46,8 +47,10 @@ export function validateBot(body: unknown, payloadBytes: number): string | null 
   if (b.tags !== undefined && (!Array.isArray(b.tags) || b.tags.length > 20)) {
     return "tags must be a list of at most 20";
   }
-  if (b.capabilities !== undefined && !Array.isArray(b.capabilities)) {
-    return "capabilities must be a list";
+  if (b.capabilities !== undefined) {
+    if (!Array.isArray(b.capabilities)) return "capabilities must be a list";
+    const bad = b.capabilities.find((c) => typeof c !== "string" || !isBotCapability(c));
+    if (bad !== undefined) return `Unknown capability: ${String(bad)}`;
   }
   return null;
 }

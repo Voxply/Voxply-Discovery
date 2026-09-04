@@ -19,12 +19,6 @@ export function PageIntro({ title, children }: { title: string; children?: React
   );
 }
 
-export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-border bg-bg-elevated p-5 ${className}`}>{children}</div>
-  );
-}
-
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <span className="font-mono text-[11px] font-medium tracking-[1.6px] text-text-faint uppercase">

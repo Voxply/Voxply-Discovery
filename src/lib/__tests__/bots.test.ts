@@ -86,6 +86,14 @@ describe("validateBot", () => {
   it("rejects a command with no name", () => {
     expect(validateBot({ ...ok, commands: [{ description: "no name" }] }, 100)).toMatch(/command/);
   });
+
+  // The detail page renders the closed BOT_CAPABILITIES set, so a capability
+  // outside it would be stored and then shown nowhere.
+  it("rejects a capability outside the known set", () => {
+    expect(validateBot({ ...ok, capabilities: ["moderate"] }, 100)).toBeNull();
+    expect(validateBot({ ...ok, capabilities: ["read-your-email"] }, 100)).toMatch(/capability/);
+    expect(validateBot({ ...ok, capabilities: "moderate" }, 100)).toMatch(/list/);
+  });
 });
 
 describe("bot storage", () => {
